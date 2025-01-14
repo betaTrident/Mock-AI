@@ -1,0 +1,17 @@
+{
+  "hosting": {
+    "public": "public",
+    "site": "linguasphere-e056b-b0774",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
