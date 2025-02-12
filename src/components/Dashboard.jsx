@@ -178,44 +178,32 @@ export default function Dashboard() {
       const interviewId = deleteConfirmation.interviewId;
       const interviewRef = doc(db, 'interviews', interviewId);
       
-      // First, verify the user owns the interview
+      // First, verify the interview exists and belongs to the user
       const interviewDoc = await getDoc(interviewRef);
       if (!interviewDoc.exists()) {
         throw new Error('Interview not found');
       }
       
-      if (interviewDoc.data().userId !== auth.currentUser?.uid) {
+      const interviewData = interviewDoc.data();
+      if (interviewData.userId !== auth.currentUser?.uid) {
         throw new Error('You do not have permission to delete this interview');
       }
-      
-      // Delete all associated questions first
-      const questionsSnapshot = await getDocs(collection(db, 'interviews', interviewId, 'questions'));
-      const batch = writeBatch(db);
-      questionsSnapshot.docs.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
-      await batch.commit();
-      
-      // Then delete the interview document
+  
+      // Delete the interview document first
       await deleteDoc(interviewRef);
       
       // Update local state
       setInterviews(prev => prev.filter(interview => interview.id !== interviewId));
       
-      // Show success toast
+      // Show success message
       setShowGreetingToast(false);
       setTimeout(() => {
         setShowGreetingToast(true);
       }, 100);
+  
     } catch (error) {
       console.error('Error deleting interview:', error);
-      // Show error toast
-      const errorMessage = error.message || 'Failed to delete interview';
-      setShowGreetingToast(false);
-      setTimeout(() => {
-        // You might want to create a separate error toast or modify ToastTwo to handle errors
-        setShowGreetingToast(true);
-      }, 100);
+      alert(error.message || 'Failed to delete interview');
     } finally {
       setIsDeleting(false);
       setDeleteConfirmation({ open: false, interviewId: null });
