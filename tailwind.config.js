@@ -1,39 +1,7 @@
-// const {nextui} = require("@nextui-org/react");
+import { nextui } from "@nextui-org/react";
+import defaultTheme from "tailwindcss/defaultTheme";
 
-// /** @type {import('tailwindcss').Config} */
-// module.exports = {
-//   content: [
-//     "./index.html",
-//     "./src/**/*.{js,ts,jsx,tsx}",
-//     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
-//   ],
-//   theme: {
-//     extend: {
-//       keyframes: {
-//         fadeIn: {
-//           '0%': { opacity: '0' },
-//           '100%': { opacity: '1' },
-//         },
-//         scaleIn: {
-//           '0%': { transform: 'scale(0.95)', opacity: '0' },
-//           '100%': { transform: 'scale(1)', opacity: '1' },
-//         },
-//       },
-//       animation: {
-//         fadeIn: 'fadeIn 0.2s ease-out',
-//         scaleIn: 'scaleIn 0.2s ease-out',
-//       },
-//     },
-//     darkMode: "class",
-//     plugins: [nextui()],
-//   },
-//   plugins: [],
-// }
-
-const { nextui } = require("@nextui-org/react");
-const { fontFamily } = require("tailwindcss/defaultTheme");
-
-module.exports = {
+export default {
   darkMode: ["class"],
   content: [
     "./index.html",
@@ -114,9 +82,8 @@ module.exports = {
         scaleIn: 'scaleIn 0.2s ease-out',
       },
     },
-    darkMode: "class",
-    plugins: [nextui()],
   },
-  plugins: [],
+  plugins: [nextui()],
 }
+
 

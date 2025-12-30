@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import {NextUIProvider} from "@nextui-org/react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Registration from "./components/Registration";
-import Login from './components/Login';
-import InterviewSetup from "./components/InterviewSetup";
-import ProfileSetup from './components/ProfileSetup';
-import Dashboard from "./components/Dashboard";
-import FeedbackPage from './components/FeedbackPage';
-import InterviewPage from "./components/InterviewPage";
-import UserProfiles from "./components/UserProfiles";
+import Registration from "./pages/Registration";
+import Login from './pages/Login';
+import InterviewSetup from "./pages/InterviewSetup";
+import ProfileSetup from './pages/ProfileSetup';
+import Dashboard from "./pages/Dashboard";
+import FeedbackPage from './pages/FeedbackPage';
+import InterviewPage from "./pages/InterviewPage";
+import UserProfiles from "./pages/UserProfiles";
 import "./firebase"; 
 import { auth } from "./firebase";
 

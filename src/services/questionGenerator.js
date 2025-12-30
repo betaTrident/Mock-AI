@@ -1,11 +1,19 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GEMINI_API_KEY } from '../config/apiKeys';
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 export async function generateQuestions(interviewData) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // 1. UPDATE: Use a currently supported model (e.g., gemini-2.5-flash)
+    // 2. UPDATE: Enable 'application/json' to force structured output
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash", 
+      generationConfig: {
+        responseMimeType: "application/json" 
+      }
+    });
+
+    console.log("API Key available:", !!import.meta.env.VITE_GEMINI_API_KEY);
 
     const prompt = `
       Generate 5 technical interview questions for a ${interviewData.role} position.
@@ -13,39 +21,35 @@ export async function generateQuestions(interviewData) {
       Tech stack: ${interviewData.description}
       Difficulty level: ${interviewData.difficulty}
 
-      Format the response as a JSON array with objects containing:
+      Output must be a JSON array with objects containing:
       - question: the interview question
       - expectedAnswer: detailed expected answer for scoring
       - maxScore: maximum score for this question (1-10)
       - keyPoints: array of key points that should be mentioned for full score
-
-      Ensure the JSON is properly formatted without any control characters or line breaks within strings.
     `;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    let text = response.text();
+    const text = response.text();
 
     console.log('Raw AI Response:', text);
 
-    text = text.trim();  // Ensure extra whitespace is removed
-    text = text.replace(/\\n/g, ' ').replace(/\s+/g, ' ');  // Replace line breaks and multiple spaces
-
-    // Remove non-JSON content using regex to extract the JSON array
-    text = text.replace(/^[\s\S]*?(\[[\s\S]*\])[\s\S]*$/, '$1');
-
+    // 3. UPDATE: Simplified Parsing
+    // Because we used responseMimeType: "application/json", the AI returns clean JSON.
+    // We no longer need complex Regex to strip markdown.
     let questions;
     try {
       questions = JSON.parse(text);
     } catch (err) {
       console.error('Error parsing JSON:', err);
-      console.error('Received text:', text);  // Log the response that caused the error
-      throw new Error('Failed to generate valid JSON.');
+      // Fallback: Use your old regex ONLY if clean parse fails (rare)
+      const cleanedText = text.replace(/^[\s\S]*?(\[[\s\S]*\])[\s\S]*$/, '$1');
+      questions = JSON.parse(cleanedText);
     }
 
     // Ensure the array contains only the first 5 questions
     if (Array.isArray(questions) && questions.length > 5) {
-      questions = questions.slice(0, 5); // Limit to 5 questions
+      questions = questions.slice(0, 5); 
     }
 
     return questions;

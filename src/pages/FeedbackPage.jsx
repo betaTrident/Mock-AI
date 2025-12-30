@@ -21,6 +21,13 @@
 
 //   const fetchFeedback = async (interviewId, attemptId) => {
 //     console.log("Fetching feedback for interview:", interviewId, "attempt:", attemptId)
+    
+//     if (!interviewId) {
+//       console.error("No interview ID provided")
+//       setIsLoading(false)
+//       return
+//     }
+
 //     try {
 //       setIsLoading(true)
 //       const interviewDoc = await getDoc(doc(db, "interviews", interviewId))
@@ -35,13 +42,31 @@
 //       const attemptHistory = await getAttempts(interviewId)
 //       setAttempts(attemptHistory)
 
+//       // If no attemptId is provided, use the most recent attempt
+//       if (!attemptId && attemptHistory.length > 0) {
+//         attemptId = attemptHistory[0].id
+//       }
+
+//       // If we still don't have an attemptId, show error
+//       if (!attemptId) {
+//         setFeedback({
+//           interviewData,
+//           answers: [],
+//           averageScore: 0,
+//         })
+//         setIsLoading(false)
+//         return
+//       }
+
 //       // Set the current attempt as selected
 //       const currentAttempt = attemptHistory.find((a) => a.id === attemptId)
 //       setSelectedAttempt(currentAttempt)
 
 //       let answersSnapshot
 //       try {
-//         answersSnapshot = await getDocs(collection(db, "interviews", interviewId, "attempts", attemptId, "answers"))
+//         answersSnapshot = await getDocs(
+//           collection(db, "interviews", interviewId, "attempts", attemptId, "answers")
+//         )
 //         console.log("Successfully retrieved answers:", answersSnapshot.size)
 //       } catch (error) {
 //         console.error("Error fetching answers:", error)
@@ -93,11 +118,13 @@
 
 //       setIsLoading(false)
 
-//       confetti({
-//         particleCount: 100,
-//         spread: 70,
-//         origin: { y: 0.6 },
-//       })
+//       if (averageScore >= PASSING_SCORE) {
+//         confetti({
+//           particleCount: 100,
+//           spread: 70,
+//           origin: { y: 0.6 },
+//         })
+//       }
 //     } catch (error) {
 //       console.error("Error fetching feedback:", error)
 //       setIsLoading(false)
@@ -107,8 +134,15 @@
 //   useEffect(() => {
 //     const interviewId = localStorage.getItem("currentInterviewId")
 //     const attemptId = localStorage.getItem("currentAttemptId")
+    
+//     if (!interviewId) {
+//       console.error("No interview ID found in localStorage")
+//       navigate("/dashboard")
+//       return
+//     }
+    
 //     fetchFeedback(interviewId, attemptId)
-//   }, [])
+//   }, [navigate])
 
 //   const calculateScore = (answer, keyPoints) => {
 //     if (!answer || !keyPoints || keyPoints.length === 0) return 0
@@ -295,7 +329,6 @@
 // }
 
 
-
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { doc, getDoc, collection, getDocs } from "firebase/firestore"
@@ -321,6 +354,13 @@ export default function FeedbackPage() {
 
   const fetchFeedback = async (interviewId, attemptId) => {
     console.log("Fetching feedback for interview:", interviewId, "attempt:", attemptId)
+    
+    if (!interviewId) {
+      console.error("No interview ID provided")
+      setIsLoading(false)
+      return
+    }
+
     try {
       setIsLoading(true)
       const interviewDoc = await getDoc(doc(db, "interviews", interviewId))
@@ -335,38 +375,59 @@ export default function FeedbackPage() {
       const attemptHistory = await getAttempts(interviewId)
       setAttempts(attemptHistory)
 
-      // Set the current attempt as selected
-      const currentAttempt = attemptHistory.find((a) => a.id === attemptId)
+      // Find the current attempt first
+      const currentAttempt = attemptId ? attemptHistory.find((a) => a.id === attemptId) : null
       setSelectedAttempt(currentAttempt)
 
-      // Calculate improvement
-      if (attemptHistory.length > 1 && currentAttempt && typeof currentAttempt.score === "number") {
-        const sortedAttempts = attemptHistory.sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))
-        const currentScore = currentAttempt.score
-        const previousScore =
-          sortedAttempts[1] && typeof sortedAttempts[1].score === "number" ? sortedAttempts[1].score : null
-        if (previousScore !== null) {
-          const improvementValue = currentScore - previousScore
-          setImprovement(improvementValue)
+      if (attemptHistory.length > 0) {
+        // Sort attempts by date in ascending order for the chart
+        const sortedAttempts = [...attemptHistory].sort(
+          (a, b) => new Date(a.startedAt) - new Date(b.startedAt)
+        )
+    
+        // Create chart data with proper date formatting and scores
+        const formattedChartData = sortedAttempts.map((attempt) => ({
+          date: new Date(attempt.startedAt).toLocaleDateString(),
+          score: typeof attempt.score === 'number' ? Number(attempt.score.toFixed(2)) : 0
+        }))
+    
+        setChartData(formattedChartData)
+    
+        // Calculate improvement if this is not the first attempt and we have a current attempt
+        if (attemptHistory.length > 1 && currentAttempt && typeof currentAttempt.score === "number") {
+          const previousAttempt = sortedAttempts[sortedAttempts.length - 2] // Get second-to-last attempt
+          const currentScore = currentAttempt.score
+          const previousScore = previousAttempt && typeof previousAttempt.score === "number" 
+            ? previousAttempt.score 
+            : null
+    
+          if (previousScore !== null) {
+            const improvementValue = currentScore - previousScore
+            setImprovement(improvementValue)
+          } else {
+            setImprovement(null)
+          }
         } else {
           setImprovement(null)
         }
-      } else {
-        setImprovement(null)
       }
 
-      // Prepare chart data
-      const chartData = attemptHistory
-        .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))
-        .map((attempt) => ({
-          date: new Date(attempt.startedAt).toLocaleDateString(),
-          score: attempt.score,
-        }))
-      setChartData(chartData)
+      // If we don't have an attemptId, show minimal feedback
+      if (!attemptId) {
+        setFeedback({
+          interviewData,
+          answers: [],
+          averageScore: 0,
+        })
+        setIsLoading(false)
+        return
+      }
 
       let answersSnapshot
       try {
-        answersSnapshot = await getDocs(collection(db, "interviews", interviewId, "attempts", attemptId, "answers"))
+        answersSnapshot = await getDocs(
+          collection(db, "interviews", interviewId, "attempts", attemptId, "answers")
+        )
         console.log("Successfully retrieved answers:", answersSnapshot.size)
       } catch (error) {
         console.error("Error fetching answers:", error)
@@ -416,13 +477,16 @@ export default function FeedbackPage() {
         averageScore,
       })
 
+      
       setIsLoading(false)
 
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-      })
+      if (averageScore >= PASSING_SCORE) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+        })
+      }
     } catch (error) {
       console.error("Error fetching feedback:", error)
       setIsLoading(false)
@@ -432,13 +496,15 @@ export default function FeedbackPage() {
   useEffect(() => {
     const interviewId = localStorage.getItem("currentInterviewId")
     const attemptId = localStorage.getItem("currentAttemptId")
-    if (interviewId && attemptId) {
-      fetchFeedback(interviewId, attemptId)
-    } else {
-      console.error("Missing interviewId or attemptId")
-      setIsLoading(false)
+    
+    if (!interviewId) {
+      console.error("No interview ID found in localStorage")
+      navigate("/dashboard")
+      return
     }
-  }, []) // Removed fetchFeedback from dependencies
+    
+    fetchFeedback(interviewId, attemptId)
+  }, [navigate])
 
   const calculateScore = (answer, keyPoints) => {
     if (!answer || !keyPoints || keyPoints.length === 0) return 0
@@ -667,4 +733,3 @@ export default function FeedbackPage() {
     </div>
   )
 }
-

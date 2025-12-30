@@ -1,9 +1,8 @@
-import { GoogleGenerativeAI } from "@google/generative-ai"
-import { GEMINI_API_KEY } from "../config/apiKeys"
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai"
 import { doc, updateDoc } from "firebase/firestore"
 import { db } from "../firebase"
 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY)
 
 export async function generateAndStoreFeedback(
   interviewId,
@@ -14,7 +13,13 @@ export async function generateAndStoreFeedback(
   expectedAnswer,
 ) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" })
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      generationConfig: {
+        responseMimeType: "text/plain"
+      }
+    })
+
 
     const prompt = `
       As an AI interview assistant, provide constructive feedback for the following interview question and answer:
