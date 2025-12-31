@@ -1,5 +1,5 @@
 import { doc, setDoc, collection, getDoc } from "firebase/firestore"
-import { db } from "../firebase"
+import { db } from "../../src/firebase"
 import { getAuth } from "firebase/auth"
 
 export async function saveAnswer(interviewId, attemptId, questionIndex, answer, question) {

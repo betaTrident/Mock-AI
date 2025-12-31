@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import FeedbackPage from './pages/FeedbackPage';
 import InterviewPage from "./pages/InterviewPage";
 import UserProfiles from "./pages/UserProfiles";
+import Homepage from "./pages/Homepage";
 import "./firebase"; 
 import { auth } from "./firebase";
 
@@ -41,11 +42,12 @@ const App = () => {
     <NextUIProvider>
       <Router>
         <Routes>
-          {/* Redirect root to login */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          {/* Homepage as root */}
+          <Route path="/" element={<Homepage />} />
           
           {/* Auth routes */}
           <Route path="/register" element={<Registration />} />
+          <Route path="/registration" element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route
             path="/profile-setup"

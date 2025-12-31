@@ -10,7 +10,7 @@ import {
   deleteDoc,
   writeBatch,
 } from "firebase/firestore"
-import { db } from "../firebase"
+import { db } from "../../src/firebase"
 import { getAuth } from "firebase/auth"
 
 export async function createAttempt(interviewId) {

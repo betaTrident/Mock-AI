@@ -31,7 +31,7 @@ export function Navbar() {
       setShowLogoutToast(true);
       setTimeout(() => {
         setShowLogoutToast(false);
-        navigate('/login');
+        navigate('/');
       }, 2000);
     } catch (error) {
       console.error('Error logging out:', error);

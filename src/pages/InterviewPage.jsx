@@ -5,12 +5,12 @@ import { doc, getDoc, collection, getDocs, addDoc, writeBatch } from "firebase/f
 import { db } from "../firebase"
 import { useNavigate } from "react-router-dom"
 import Navbar from "./Navbar"
-import { generateQuestions } from "../services/questionGenerator"
-import { SpeechRecognitionService } from "../services/speechRecognition"
-import { saveAnswer } from "../services/answerService"
+import { generateQuestions } from "../../backend/services/questionGenerator"
+import { SpeechRecognitionService } from "../../backend/services/speechRecognition"
+import { saveAnswer } from "../../backend/services/answerService"
 import { useInterviewToast } from "./interviewToast"
 import { getAuth, onAuthStateChanged } from "firebase/auth"
-import { createAttempt, completeAttempt } from "../services/attemptService"
+import { createAttempt, completeAttempt } from "../../backend/services/attemptService"
 
 export default function InterviewPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
