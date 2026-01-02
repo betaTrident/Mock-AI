@@ -119,43 +119,7 @@ npm run build
 npm run preview
 ```
 
-## 📁 Project Structure
 
-```
-Mock-AI/
-├── public/
-│   └── index.html
-├── src/
-│   ├── assets/              # Static assets
-│   ├── components/          # Reusable UI components
-│   │   └── ui/             # UI component library
-│   ├── config/              # Configuration files
-│   ├── pages/               # Page components
-│   │   ├── Homepage.jsx
-│   │   ├── Login.jsx
-│   │   ├── Registration.jsx
-│   │   ├── ProfileSetup.jsx
-│   │   ├── Dashboard.jsx
-│   │   ├── InterviewSetup.jsx
-│   │   ├── InterviewPage.jsx
-│   │   └── FeedbackPage.jsx
-│   ├── services/            # API and business logic
-│   │   ├── questionGenerator.js
-│   │   ├── feedback.js
-│   │   ├── answerService.js
-│   │   ├── attemptService.js
-│   │   └── speechRecognition.js
-│   ├── App.jsx             # Main app component
-│   ├── main.jsx            # Entry point
-│   ├── firebase.js         # Firebase configuration
-│   └── index.css           # Global styles
-├── .env                    # Environment variables (not in repo)
-├── .gitignore
-├── package.json
-├── tailwind.config.js
-├── vite.config.js
-└── README.md
-```
 
 ## 🔧 Configuration
 
@@ -172,51 +136,6 @@ Mock-AI/
 2. Enable Authentication (Email/Password and Google Sign-In)
 3. Create a Firestore Database
 4. Add your Firebase configuration to `src/firebase.js`
-
-### Firestore Collections Structure
-
-```
-users/
-  {userId}/
-    - email
-    - displayName
-    - createdAt
-
-userProfiles/
-  {userId}/
-    - fullName
-    - phoneNumber
-    - address
-    - createdAt
-
-interviews/
-  {interviewId}/
-    - userId
-    - role
-    - description
-    - difficulty
-    - experience
-    - createdAt
-    
-    questions/
-      {questionId}/
-        - question
-        - expectedAnswer
-        - maxScore
-        - keyPoints[]
-    
-    attempts/
-      {attemptId}/
-        - startedAt
-        - completedAt
-        
-        answers/
-          {answerId}/
-            - questionId
-            - userAnswer
-            - aiFeedback
-            - score
-```
 
 ## 🎮 Usage
 
@@ -293,6 +212,6 @@ For questions or support, please open an issue on GitHub or contact the maintain
 
 ---
 
-**Built with ❤️ by the MockAI Team**
+**Built with ❤️ by KentasticDev**
 
 © 2025 MockAI. Ace your interviews with confidence.
