@@ -4,18 +4,18 @@ import { useNavigate, Link } from "react-router-dom";
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from "../firebase";
 import { Loader2, Mail, Lock, AlertCircle, ArrowLeft, Brain } from 'lucide-react';
-import { Toast } from "./Toast";
+import { useToast } from "../components/ui/Toast";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showToast, setShowToast] = useState(false);
   const [showLoadingScreen, setShowLoadingScreen] = useState(false);
   const [hideForm, setHideForm] = useState(false);
 
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,10 +24,9 @@ export const Login = () => {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      setShowToast(true);
+      showToast({ message: 'Login successful! Redirecting...', type: 'success' });
       
       setTimeout(() => {
-        setShowToast(false);
         setHideForm(true);
         setShowLoadingScreen(true);
       }, 3000);
@@ -57,10 +56,9 @@ export const Login = () => {
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
-      setShowToast(true);
+      showToast({ message: 'Login successful! Redirecting...', type: 'success' });
       
       setTimeout(() => {
-        setShowToast(false);
         setHideForm(true);
         setShowLoadingScreen(true);
       }, 3000);
@@ -211,12 +209,6 @@ export const Login = () => {
           </div>
         </div>
       )}
-
-      <Toast 
-        show={showToast} 
-        message="Login successful! Redirecting..." 
-        type="success"
-      />
 
       {showLoadingScreen && (
         <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-50">

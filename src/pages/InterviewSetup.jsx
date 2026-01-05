@@ -19,7 +19,7 @@ import {
   Zap,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import Navbar from "./Navbar"
+import Navbar from "../components/ui/Navbar"
 import { createAttempt, hasIncompleteAttempt } from "../../backend/services/attemptService"
 
 export default function InterviewSetup() {
@@ -128,10 +128,10 @@ export default function InterviewSetup() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-slate-200 border-t-blue-600 mx-auto"></div>
-          <p className="mt-6 text-slate-600 font-medium">Loading interview setup...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-3 border-gray-200 border-t-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 text-sm">Loading interview setup...</p>
         </div>
       </div>
     )
@@ -139,15 +139,15 @@ export default function InterviewSetup() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center p-4">
-        <div className="text-center bg-white rounded-3xl shadow-xl p-12 max-w-md border border-slate-200">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Info className="h-8 w-8 text-red-600" />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center bg-white rounded-lg shadow-sm p-8 max-w-md border border-gray-200">
+          <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Info className="h-6 w-6 text-red-600" />
           </div>
-          <p className="text-red-600 mb-8 text-lg">{error}</p>
+          <p className="text-red-600 mb-6 text-sm">{error}</p>
           <button
             onClick={() => navigate("/")}
-            className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
           >
             Return to Home
           </button>
@@ -157,47 +157,42 @@ export default function InterviewSetup() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
 
       {/* Header Section */}
-      <div className="border-b border-slate-200/50 bg-white/60 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="border-b border-gray-200 bg-white">
+        <div className="container mx-auto px-4 py-6 max-w-6xl">
+          <div className="flex items-center justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full mb-3 font-medium text-xs text-blue-700">
-                <CheckCircle2 className="h-4 w-4" />
-                <span>Interview Preparation</span>
-              </div>
-              <h1 className="text-4xl md:text-4xl font-bold text-slate-900 mb-2 leading-tight">Let's Get Started</h1>
-              <p className="text-lg text-slate-600">Prepare for your AI-powered mock interview with confidence</p>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">Interview Setup</h1>
+              <p className="text-sm text-gray-600">Review your interview details and enable your devices</p>
             </div>
-            <div className="hidden lg:flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl border border-blue-200">
-              <Zap className="h-12 w-12 text-blue-600 opacity-50" />
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-lg text-xs font-medium text-blue-700">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              <span>Ready to start</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-10 max-w-7xl">
-        <div className="grid gap-8 lg:grid-cols-3">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="grid gap-6 lg:grid-cols-3">
           {/* Left Column - Interview Details */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
               {/* Card Header */}
-              <div className="px-6 py-6 border-b border-slate-200/50">
-                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                  <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Briefcase className="h-5 w-5 text-blue-600" />
-                  </div>
+              <div className="px-5 py-4 border-b border-gray-200 bg-gray-50">
+                <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                  <Briefcase className="h-4 w-4 text-gray-600" />
                   Interview Details
                 </h2>
               </div>
 
               {/* Details Grid */}
-              <div className="p-6">
-                <div className="space-y-4 mb-8">
+              <div className="p-5">
+                <div className="space-y-3 mb-6">
                   <InterviewDetailItem
                     icon={<Briefcase className="h-5 w-5 text-blue-600" />}
                     title="Job Role/Position"
@@ -221,49 +216,45 @@ export default function InterviewSetup() {
                   />
                 </div>
 
-                {/* Pro Tip Box */}
-                <div className="mb-6 p-5 bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200/60 rounded-xl">
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0">
-                      <Lightbulb className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-amber-900 mb-1 text-sm">Pro Tip</h3>
-                      <p className="text-sm text-amber-800 leading-relaxed">{interviewTip}</p>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Start Button */}
                 <button
                   onClick={startInterview}
-                  className="w-full px-6 py-3 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none flex items-center justify-center gap-3"
+                  className="w-full px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors disabled:transform-none flex items-center justify-center gap-2"
                   disabled={!hasPermissions}
                 >
-                  <Play className="h-5 w-5" />
-                  Start Interview Now
+                  <Play className="h-4 w-4" />
+                  Start Interview
                 </button>
                 {!hasPermissions && (
-                  <p className="text-xs text-center text-slate-500 mt-3">✓ Enable camera and microphone to start</p>
+                  <p className="text-xs text-center text-gray-500 mt-3">Enable camera and microphone to start</p>
                 )}
+              </div>
+            </div>
+
+            {/* Pro Tip Box */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <div className="flex gap-3">
+                <Lightbulb className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-medium text-amber-900 text-xs mb-1">Interview Tip</h3>
+                  <p className="text-xs text-amber-800 leading-relaxed">{interviewTip}</p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Right Column - Camera & Setup */}
-          <div className="space-y-8 flex flex-col">
+          <div className="space-y-6 flex flex-col">
             {/* Camera Preview */}
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300">
-              <div className="px-6 py-5 border-b border-slate-200/50">
-                <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
-                  <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
-                    <Video className="h-5 w-5 text-slate-600" />
-                  </div>
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+              <div className="px-5 py-4 border-b border-gray-200 bg-gray-50">
+                <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                  <Video className="h-4 w-4 text-gray-600" />
                   Camera Preview
                 </h2>
               </div>
-              <div className="p-5">
-                <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl relative overflow-hidden shadow-inner border border-slate-300">
+              <div className="p-4">
+                <div className="aspect-video bg-gray-100 rounded-lg relative overflow-hidden border border-gray-200">
                   {hasPermissions ? (
                     <>
                       <video
@@ -273,17 +264,17 @@ export default function InterviewSetup() {
                         muted
                         className="w-full h-full object-cover transform scale-x-[-1]"
                       />
-                      <div className="absolute top-3 right-3 flex items-center gap-2 bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg">
-                        <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                      <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-green-500 text-white px-2.5 py-1 rounded-md text-xs font-medium">
+                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
                         Live
                       </div>
                     </>
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="w-20 h-20 bg-slate-300 rounded-2xl flex items-center justify-center mb-4">
-                        <Camera className="h-10 w-10 text-slate-500" />
+                      <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center mb-3">
+                        <Camera className="h-8 w-8 text-gray-400" />
                       </div>
-                      <p className="text-slate-600 font-semibold text-sm">Camera not enabled</p>
+                      <p className="text-gray-500 text-sm">Camera not enabled</p>
                     </div>
                   )}
                 </div>
@@ -292,51 +283,51 @@ export default function InterviewSetup() {
 
             {/* Permission Setup */}
             {!hasPermissions ? (
-              <div className="bg-white rounded-2xl border border-blue-200 overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300">
-                <div className="p-6">
-                  <div className="flex flex-col items-center gap-6">
-                    <div className="flex gap-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                        <Camera className="h-7 w-7 text-blue-600" />
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <div className="p-5">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="flex gap-3">
+                      <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <Camera className="h-5 w-5 text-blue-600" />
                       </div>
-                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                        <Mic className="h-7 w-7 text-blue-600" />
+                      <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <Mic className="h-5 w-5 text-blue-600" />
                       </div>
                     </div>
                     <div className="text-center">
-                      <h3 className="font-bold text-slate-900 mb-1 text-base">Enable Permissions</h3>
-                      <p className="text-sm text-slate-600">Allow camera & microphone access</p>
+                      <h3 className="font-medium text-gray-900 mb-1 text-sm">Enable Permissions</h3>
+                      <p className="text-xs text-gray-600">Allow camera & microphone access</p>
                     </div>
                     <button
                       onClick={startWebcam}
-                      className="w-full px-6 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                      className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
                     >
-                      Enable Now
+                      Enable Devices
                     </button>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border border-emerald-200 p-5 shadow-sm">
-                <div className="flex items-start gap-4">
-                  <div className="w-9 h-9 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <CheckCircle2 className="h-6 w-6 text-white" />
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 className="h-4 w-4 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-emerald-900 text-sm">Ready to begin</h3>
-                    <p className="text-xs text-emerald-700 mt-1">Devices enabled and ready</p>
+                    <h3 className="font-medium text-emerald-900 text-xs">Ready to begin</h3>
+                    <p className="text-xs text-emerald-700 mt-0.5">Devices enabled</p>
                   </div>
                 </div>
               </div>
             )}
 
             {/* Info Box */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-xl transition-shadow duration-300">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <div className="flex gap-3">
-                <Shield className="h-5 w-5 text-slate-400 flex-shrink-0 mt-0.5" />
+                <Shield className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-slate-900 text-sm mb-1">Privacy First</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">
+                  <h3 className="font-medium text-gray-900 text-xs mb-1">Privacy First</h3>
+                  <p className="text-xs text-gray-600 leading-relaxed">
                     We never record or store your video. You can disable access anytime.
                   </p>
                 </div>
@@ -346,21 +337,21 @@ export default function InterviewSetup() {
         </div>
 
         {/* Features Section */}
-        <div className="grid md:grid-cols-3 gap-6 mt-14">
+        <div className="grid md:grid-cols-3 gap-4 mt-8">
           <FeatureBox
-            icon={<Zap className="h-6 w-6" />}
+            icon={<Zap className="h-5 w-5" />}
             title="AI-Powered Questions"
-            description="Get personalized interview questions tailored to your role"
+            description="Personalized questions for your role"
           />
           <FeatureBox
-            icon={<BarChart className="h-6 w-6" />}
+            icon={<BarChart className="h-5 w-5" />}
             title="Detailed Feedback"
-            description="Receive comprehensive analysis of your responses"
+            description="Comprehensive analysis of responses"
           />
           <FeatureBox
-            icon={<CheckCircle2 className="h-6 w-6" />}
+            icon={<CheckCircle2 className="h-5 w-5" />}
             title="Track Progress"
-            description="Monitor your improvement across multiple attempts"
+            description="Monitor improvement over time"
           />
         </div>
       </div>
@@ -370,18 +361,18 @@ export default function InterviewSetup() {
 
 function InterviewDetailItem({ icon, title, value, badge = false }) {
   return (
-    <div className="flex items-start space-x-3 p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-blue-300 transition-colors">
-      <div className="flex-shrink-0 w-9 h-9 bg-white rounded-lg flex items-center justify-center shadow-sm">
+    <div className="flex items-start space-x-3 p-3 bg-gray-50 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
+      <div className="flex-shrink-0 w-8 h-8 bg-white rounded-lg flex items-center justify-center border border-gray-200">
         {icon}
       </div>
-      <div className="flex-grow">
-        <h3 className="text-sm font-semibold text-slate-700 mb-1">{title}</h3>
+      <div className="flex-grow min-w-0">
+        <h3 className="text-xs font-medium text-gray-600 mb-0.5">{title}</h3>
         {badge ? (
-          <span className="inline-flex items-center rounded-lg bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-700 shadow-sm">
+          <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
             {value}
           </span>
         ) : (
-          <p className="text-sm text-slate-900 font-medium">{value}</p>
+          <p className="text-sm text-gray-900 font-medium truncate">{value}</p>
         )}
       </div>
     </div>
@@ -390,10 +381,10 @@ function InterviewDetailItem({ icon, title, value, badge = false }) {
 
 function FeatureBox({ icon, title, description }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-lg transition-shadow duration-300">
-      <div className="w-11 h-11 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-3">{icon}</div>
-      <h3 className="font-semibold text-slate-900 mb-1">{title}</h3>
-      <p className="text-sm text-slate-600 leading-relaxed">{description}</p>
+    <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 mb-2">{icon}</div>
+      <h3 className="font-medium text-gray-900 text-sm mb-1">{title}</h3>
+      <p className="text-xs text-gray-600 leading-relaxed">{description}</p>
     </div>
   )
 }

@@ -4,13 +4,14 @@ import { Volume2, Mic, Video, VideoOff, Loader2 } from "lucide-react"
 import { doc, getDoc, collection, getDocs, addDoc, writeBatch } from "firebase/firestore"
 import { db } from "../firebase"
 import { useNavigate } from "react-router-dom"
-import Navbar from "./Navbar"
+import Navbar from "../components/ui/Navbar"
 import { generateQuestions } from "../../backend/services/questionGenerator"
 import { SpeechRecognitionService } from "../../backend/services/speechRecognition"
 import { saveAnswer } from "../../backend/services/answerService"
 import { useInterviewToast } from "./interviewToast"
 import { getAuth, onAuthStateChanged } from "firebase/auth"
 import { createAttempt, completeAttempt } from "../../backend/services/attemptService"
+import { BeforeUnloadDialog } from "../components/ui/before-unload-dialog"
 
 export default function InterviewPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
@@ -25,10 +26,38 @@ export default function InterviewPage() {
   const [isEndingInterview, setIsEndingInterview] = useState(false)
   const [answeredQuestions, setAnsweredQuestions] = useState(new Set())
   const [currentAttemptId, setCurrentAttemptId] = useState(null) // Added state for attempt ID
+  const [interviewInProgress, setInterviewInProgress] = useState(false)
+  const [showNavigationDialog, setShowNavigationDialog] = useState(false)
+  const [pendingNavigation, setPendingNavigation] = useState(null)
   const videoRef = useRef(null)
   const speechRecognition = useRef(null)
+  const beforeUnloadRef = useRef(null)
   const { ToastContainer, showToast } = useInterviewToast()
   const navigate = useNavigate()
+
+  // Handle browser back button
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (interviewInProgress && answeredQuestions.size < questions.length) {
+        // Prevent navigation
+        event.preventDefault()
+        // Push current state back to keep user on page
+        window.history.pushState(null, '', window.location.href)
+        // Show dialog
+        setShowNavigationDialog(true)
+      }
+    }
+
+    // Push initial state to enable back button blocking
+    if (interviewInProgress && answeredQuestions.size < questions.length) {
+      window.history.pushState(null, '', window.location.href)
+      window.addEventListener('popstate', handlePopState)
+    }
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [interviewInProgress, answeredQuestions.size, questions.length])
 
   useEffect(() => {         
     const auth = getAuth()
@@ -45,6 +74,19 @@ export default function InterviewPage() {
 
     return () => unsubscribe()
   }, [navigate])
+
+  const handleConfirmNavigation = () => {
+    setInterviewInProgress(false)
+    setShowNavigationDialog(false)
+    setPendingNavigation(null)
+    // Allow navigation by going back
+    window.history.back()
+  }
+
+  const handleCancelNavigation = () => {
+    setShowNavigationDialog(false)
+    setPendingNavigation(null)
+  }
 
   const initializeInterview = async (forceNewQuestions = false) => {
     setIsLoading(true)
@@ -91,6 +133,7 @@ export default function InterviewPage() {
       setQuestions(interviewQuestions)
       setCurrentQuestion(0)
       setAnsweredQuestions(new Set())
+      setInterviewInProgress(true)
 
       speechRecognition.current = new SpeechRecognitionService()
       setIsLoading(false)
@@ -203,6 +246,9 @@ export default function InterviewPage() {
       // Calculate and update the attempt score
       const averageScore = await completeAttempt(interviewId, attemptId)
 
+      // Mark interview as no longer in progress
+      setInterviewInProgress(false)
+
       // Navigate to feedback page
       navigate("/feedback")
     } catch (error) {
@@ -260,10 +306,17 @@ export default function InterviewPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
+      <BeforeUnloadDialog 
+        ref={beforeUnloadRef}
+        hasUnsavedChanges={interviewInProgress && answeredQuestions.size < questions.length}
+        externalShowDialog={showNavigationDialog}
+        onConfirmLeave={handleConfirmNavigation}
+        onCancelLeave={handleCancelNavigation}
+      />
       <Navbar />
       <ToastContainer />
       <div className="flex-grow flex items-center justify-center p-4 sm:p-6">
-        <div className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Card - Questions */}
           <div className="bg-white rounded-xl border shadow-lg flex flex-col">
             <div className="flex-1 p-4 sm:p-6">

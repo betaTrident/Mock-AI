@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Loader2, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from "./Navbar";
+import Navbar from "../components/ui/Navbar";
 import InterviewModal from './InterviewModal';
-import { ToastTwo } from './ToastTwo';
+import { useToast } from '../components/ui/Toast';
 import { auth, db } from '../firebase';
 import { collection, query, where, getDocs, orderBy, doc, getDoc, addDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 
@@ -50,7 +50,6 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [interviews, setInterviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showGreetingToast, setShowGreetingToast] = useState(false);
   const [userName, setUserName] = useState('');
   const [formData, setFormData] = useState({
     role: '',
@@ -62,6 +61,7 @@ export default function Dashboard() {
   const [deleteConfirmation, setDeleteConfirmation] = useState({ open: false, interviewId: null });
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -72,11 +72,16 @@ export default function Dashboard() {
           
           if (userProfileSnap.exists()) {
             const userProfileData = userProfileSnap.data();
-            setUserName(userProfileData.name || 'User');
+            const name = userProfileData.name || 'User';
+            setUserName(name);
+            showToast({ 
+              message: name === 'User' ? 'Welcome!' : `Welcome back, ${name}!`, 
+              type: 'success' 
+            });
           } else {
             setUserName('User');
+            showToast({ message: 'Welcome!', type: 'success' });
           }
-          setShowGreetingToast(true);
           
           await fetchInterviews(user.uid);
         } catch (error) {
@@ -196,10 +201,7 @@ export default function Dashboard() {
       setInterviews(prev => prev.filter(interview => interview.id !== interviewId));
       
       // Show success message
-      setShowGreetingToast(false);
-      setTimeout(() => {
-        setShowGreetingToast(true);
-      }, 100);
+      showToast({ message: 'Interview deleted successfully', type: 'success' });
   
     } catch (error) {
       console.error('Error deleting interview:', error);
@@ -298,13 +300,6 @@ export default function Dashboard() {
         onClose={() => setDeleteConfirmation({ open: false, interviewId: null })}
         onConfirm={handleDeleteInterview}
         isDeleting={isDeleting}
-      />
-
-      <ToastTwo
-        show={showGreetingToast}
-        message={userName === 'User' ? 'Welcome!' : `Welcome back, ${userName}!`}
-        onClose={() => setShowGreetingToast(false)}
-        type="success"
       />
     </div>
   );

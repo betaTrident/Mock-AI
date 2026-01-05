@@ -5,7 +5,7 @@ import { getAuth } from 'firebase/auth';
 import { db } from '../firebase';
 import { Loader2, AlertCircle, CheckCircle, User, Calendar, Phone, MapPin, Edit2, Save, ArrowLeft } from 'lucide-react';
 import { Toast } from './Toast';
-import Navbar from './Navbar';
+import Navbar from '../components/ui/Navbar';
 
 const UserProfiles = () => {
   const [profile, setProfile] = useState(null);

@@ -4,13 +4,12 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { User, AtSign, Calendar, Phone, MapPin, Loader2, AlertCircle, Brain, CheckCircle } from 'lucide-react';
-import SuccessPopup from './SuccessPopup';
+import { useToast } from '../components/ui/Toast';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -19,6 +18,7 @@ const ProfileSetup = () => {
     address: '',
   });
   const [error, setError] = useState('');
+  const { showToast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -68,19 +68,17 @@ const ProfileSetup = () => {
       // Save profile to Firestore
       await setDoc(doc(db, 'userProfiles', userId), profileData);
       
-      // Show success popup instead of immediately navigating
-      setShowSuccessPopup(true);
+      // Show success toast and navigate
+      showToast({ message: 'Your profile has been created successfully!', type: 'success' });
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
     } catch (err) {
       console.error('Profile creation error:', err);
       setError('Failed to create profile. Please try again.');
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const handlePopupClose = () => {
-    setShowSuccessPopup(false);
-    navigate('/dashboard');
   };
 
   const handleChange = (e) => {
@@ -260,12 +258,6 @@ const ProfileSetup = () => {
           </div>
         </div>
       </div>
-
-      <SuccessPopup
-        message="Your profile has been created successfully!"
-        isVisible={showSuccessPopup}
-        onClose={handlePopupClose}
-      />
     </div>
   );
 };

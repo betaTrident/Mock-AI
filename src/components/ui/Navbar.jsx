@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Settings, User, Menu } from 'lucide-react';
-import { ToastTwo } from './ToastTwo';
-import { auth } from '../firebase';
+import { ToastTwo } from '../../pages/ToastTwo';
+import { auth } from '../../firebase';
 
 export function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState(null);

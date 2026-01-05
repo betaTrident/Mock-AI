@@ -2,17 +2,17 @@ import React, { useState } from "react";
 import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { Loader2, Mail, Lock, AlertCircle, ArrowLeft, Brain, UserPlus } from 'lucide-react';
-import { Toast } from "./Toast";
+import { useToast } from "../components/ui/Toast";
 
 const Registration = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showToast, setShowToast] = useState(false);
 
   const navigate = useNavigate();
   const auth = getAuth();
+  const { showToast } = useToast();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -21,9 +21,8 @@ const Registration = () => {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      setShowToast(true);
+      showToast({ message: 'Registration successful! Redirecting...', type: 'success' });
       setTimeout(() => {
-        setShowToast(false);
         navigate("/login");
       }, 3000);
     } catch (err) {
@@ -40,9 +39,8 @@ const Registration = () => {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      setShowToast(true);
+      showToast({ message: 'Registration successful! Redirecting...', type: 'success' });
       setTimeout(() => {
-        setShowToast(false);
         navigate("/login");
       }, 3000);
     } catch (err) {
@@ -181,12 +179,6 @@ const Registration = () => {
           </div>
         </div>
       </div>
-
-      <Toast 
-        show={showToast} 
-        message="Registration successful! Redirecting..." 
-        type="success"
-      />
     </div>
   );
 };
