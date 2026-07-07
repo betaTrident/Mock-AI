@@ -1,0 +1,19 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth } from '@/lib/auth'
+import { adminDb } from '@/lib/firebase-admin'
+
+type RouteContext = { params: Promise<{ id: string }> }
+
+export async function POST(request: NextRequest, context: RouteContext) {
+  try {
+    const user = await requireAuth(request)
+    const { id } = await context.params
+    const attempt = await adminDb.collection('attempts').doc(id).get()
+    if (!attempt.exists || attempt.data()!.userId !== user.uid) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+    return NextResponse.json({ status: 'complete' })
+  } catch {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+}
