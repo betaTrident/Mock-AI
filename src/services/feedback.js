@@ -13,7 +13,7 @@ export async function generateAndStoreFeedback(
   expectedAnswer,
 ) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
 
 
     const prompt = `

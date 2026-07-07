@@ -20,7 +20,7 @@ import {
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import Navbar from "../components/ui/Navbar"
-import { createAttempt, hasIncompleteAttempt } from "../../backend/services/attemptService"
+import { createAttempt, hasIncompleteAttempt } from "../services/attemptService"
 
 export default function InterviewSetup() {
   const [hasPermissions, setHasPermissions] = useState(false)

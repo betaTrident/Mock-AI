@@ -1,55 +1,64 @@
 
 import React, { useState, useRef, useEffect } from "react"
-import { Volume2, Mic, Video, VideoOff, Loader2 } from "lucide-react"
+import { Volume2, Mic, Video, VideoOff, Loader2, MicOff } from "lucide-react"
 import { doc, getDoc, collection, getDocs, addDoc, writeBatch } from "firebase/firestore"
 import { db } from "../firebase"
 import { useNavigate } from "react-router-dom"
 import Navbar from "../components/ui/Navbar"
-import { generateQuestions } from "../../backend/services/questionGenerator"
-import { SpeechRecognitionService } from "../../backend/services/speechRecognition"
-import { saveAnswer } from "../../backend/services/answerService"
+import TranscriptPanel from "../components/TranscriptPanel"
+import { LiveConversationService } from "../services/liveConversationService"
+import { TextToSpeechService } from "../services/textToSpeechService"
+import { SpeechRecognitionService } from "../services/speechRecognition"
+import { saveAnswer } from "../services/answerService"
 import { useInterviewToast } from "./interviewToast"
 import { getAuth, onAuthStateChanged } from "firebase/auth"
-import { createAttempt, completeAttempt } from "../../backend/services/attemptService"
+import { createAttempt, completeAttempt } from "../services/attemptService"
 import { BeforeUnloadDialog } from "../components/ui/before-unload-dialog"
 
 export default function InterviewPage() {
-  const [currentQuestion, setCurrentQuestion] = useState(0)
-  const [questions, setQuestions] = useState([])
-  const [isRecording, setIsRecording] = useState(false)
-  const [isCameraOn, setIsCameraOn] = useState(true)
-  const [stream, setStream] = useState(null)
-  const [transcript, setTranscript] = useState("")
+  // Conversation state
+  const [messages, setMessages] = useState([])
+  const [conversationState, setConversationState] = useState('idle') // idle, ai-speaking, listening, processing
   const [interimTranscript, setInterimTranscript] = useState("")
+  
+  // Interview state
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState(null)
   const [isEndingInterview, setIsEndingInterview] = useState(false)
-  const [answeredQuestions, setAnsweredQuestions] = useState(new Set())
-  const [currentAttemptId, setCurrentAttemptId] = useState(null) // Added state for attempt ID
+  const [currentAttemptId, setCurrentAttemptId] = useState(null)
   const [interviewInProgress, setInterviewInProgress] = useState(false)
+  const [interviewData, setInterviewData] = useState(null)
+  
+  // Camera/Audio state
+  const [isCameraOn, setIsCameraOn] = useState(true)
+  const [stream, setStream] = useState(null)
+  
+  // Navigation dialog state
   const [showNavigationDialog, setShowNavigationDialog] = useState(false)
   const [pendingNavigation, setPendingNavigation] = useState(null)
+  
+  // Refs
   const videoRef = useRef(null)
+  const liveConversation = useRef(null)
+  const ttsService = useRef(null)
   const speechRecognition = useRef(null)
   const beforeUnloadRef = useRef(null)
+  const currentUtterance = useRef(null)
+  
   const { ToastContainer, showToast } = useInterviewToast()
   const navigate = useNavigate()
 
   // Handle browser back button
   useEffect(() => {
     const handlePopState = (event) => {
-      if (interviewInProgress && answeredQuestions.size < questions.length) {
-        // Prevent navigation
+      if (interviewInProgress && messages.length > 0) {
         event.preventDefault()
-        // Push current state back to keep user on page
         window.history.pushState(null, '', window.location.href)
-        // Show dialog
         setShowNavigationDialog(true)
       }
     }
 
-    // Push initial state to enable back button blocking
-    if (interviewInProgress && answeredQuestions.size < questions.length) {
+    if (interviewInProgress && messages.length > 0) {
       window.history.pushState(null, '', window.location.href)
       window.addEventListener('popstate', handlePopState)
     }
@@ -57,7 +66,7 @@ export default function InterviewPage() {
     return () => {
       window.removeEventListener('popstate', handlePopState)
     }
-  }, [interviewInProgress, answeredQuestions.size, questions.length])
+  }, [interviewInProgress, messages.length])
 
   useEffect(() => {         
     const auth = getAuth()
@@ -88,7 +97,7 @@ export default function InterviewPage() {
     setPendingNavigation(null)
   }
 
-  const initializeInterview = async (forceNewQuestions = false) => {
+  const initializeInterview = async () => {
     setIsLoading(true)
     try {
       const interviewId = localStorage.getItem("currentInterviewId")
@@ -98,45 +107,56 @@ export default function InterviewPage() {
         throw new Error("Interview not found")
       }
 
-      const interviewData = interviewDoc.data()
+      const data = interviewDoc.data()
+      setInterviewData(data)
 
       // Create a new attempt
       const attemptId = await createAttempt(interviewId)
       setCurrentAttemptId(attemptId)
       localStorage.setItem("currentAttemptId", attemptId)
 
-      // If forcing new questions (retake), delete existing questions
-      if (forceNewQuestions) {
-        const questionsSnapshot = await getDocs(
-          collection(db, "interviews", interviewId, "attempts", currentAttemptId, "questions"),
-        )
-        const batch = writeBatch(db)
-
-        // Delete all existing questions
-        questionsSnapshot.docs.forEach((doc) => {
-          batch.delete(doc.ref)
-        })
-        await batch.commit()
+      // Initialize Gemini conversation service
+      liveConversation.current = new LiveConversationService(data)
+      
+      // Set up event listeners for transcript updates
+      liveConversation.current.onTranscriptUpdate = (message) => {
+        setMessages(prev => [...prev, message])
+        
+        // Save candidate answers automatically
+        if (message.role === 'candidate') {
+          const interviewId = localStorage.getItem("currentInterviewId")
+          const attemptId = localStorage.getItem("currentAttemptId")
+          const questionNumber = messages.filter(m => m.role === 'interviewer').length - 1
+          const lastQuestion = messages.filter(m => m.role === 'interviewer').pop()
+          
+          saveAnswer(interviewId, attemptId, questionNumber, message.content, lastQuestion?.content || "Interview Question")
+            .catch(err => console.error("Error saving answer:", err))
+        }
+      }
+      
+      // Set up audio response handler (speak the AI response)
+      liveConversation.current.onAudioResponse = async (text) => {
+        await ttsService.current.speak(text)
+        setConversationState('listening')
+      }
+      
+      // Set up state change listener
+      liveConversation.current.onStateChange = (newState) => {
+        setConversationState(newState)
       }
 
-      // Generate new questions
-      const interviewQuestions = await generateQuestions(interviewData)
-
-      // Save new questions to Firestore
-      const batch = writeBatch(db)
-      interviewQuestions.forEach((question, index) => {
-        const questionRef = doc(collection(db, "interviews", interviewId, "attempts", attemptId, "questions"))
-        batch.set(questionRef, { ...question, order: index })
-      })
-      await batch.commit()
-
-      setQuestions(interviewQuestions)
-      setCurrentQuestion(0)
-      setAnsweredQuestions(new Set())
-      setInterviewInProgress(true)
-
+      // Initialize TTS service
+      ttsService.current = new TextToSpeechService()
+      await ttsService.current.initialize()
+      
+      // Initialize speech recognition
       speechRecognition.current = new SpeechRecognitionService()
+
+      setInterviewInProgress(true)
       setIsLoading(false)
+
+      // Start the conversation
+      await startLiveConversation()
     } catch (error) {
       console.error("Error initializing interview:", error)
       showToast(`Failed to initialize interview: ${error.message}`, "error")
@@ -144,11 +164,114 @@ export default function InterviewPage() {
     }
   }
 
-  // Initial load - use existing questions if available
-  useEffect(() => {
-    initializeInterview(false)
-  }, [])
+  /**
+   * Start the live conversation with Gemini
+   */
+  const startLiveConversation = async () => {
+    try {
+      if (!liveConversation.current) {
+        throw new Error("Live conversation service not initialized")
+      }
 
+      // Initialize Gemini session
+      await liveConversation.current.initialize()
+      
+      setConversationState('ai-speaking')
+      
+      // Start the conversation (AI will greet and ask first question)
+      await liveConversation.current.startConversation()
+      
+      console.log("Conversation started - AI speaking greeting")
+    } catch (error) {
+      console.error("Error starting live conversation:", error)
+      showToast("Failed to start conversation", "error")
+      setConversationState('idle')
+    }
+  }
+  
+  /**
+   * Start listening for user response
+   */
+  const startListening = () => {
+    if (conversationState !== 'idle' && conversationState !== 'listening') {
+      return
+    }
+
+    setConversationState('listening')
+    setInterimTranscript("")
+
+    speechRecognition.current.startRecording(
+      (finalTranscript, interim) => {
+        setInterimTranscript(interim)
+      },
+      async (finalTranscript) => {
+        // User finished speaking - process response
+        await handleUserResponse(finalTranscript)
+      }
+    )
+  }
+  
+  /**
+   * Handle user's spoken response
+   */
+  const handleUserResponse = async (transcript) => {
+    if (!transcript || transcript.trim().length === 0) {
+      startListening()
+      return
+    }
+
+    setInterimTranscript("")
+    setConversationState('processing')
+
+    try {
+      // Send response to AI and get next question
+      const { response, isComplete } = await liveConversation.current.sendUserResponse(transcript)
+      
+      if (isComplete) {
+        // Interview complete
+        setTimeout(() => completeInterviewSession(), 3000)
+      } else {
+        // Continue - AI response will be spoken via TTS callback
+        setConversationState('ai-speaking')
+      }
+    } catch (error) {
+      console.error("Error handling user response:", error)
+      showToast("Failed to process your response", "error")
+      setConversationState('idle')
+    }
+  }
+
+  /**
+   * Complete the interview session
+   */
+  const completeInterviewSession = async () => {
+    try {
+      setIsEndingInterview(true)
+      setConversationState('idle')
+      
+      const interviewId = localStorage.getItem("currentInterviewId")
+      const attemptId = localStorage.getItem("currentAttemptId")
+
+      // Calculate and save scores
+      await completeAttempt(interviewId, attemptId)
+
+      setInterviewInProgress(false)
+      
+      // Show completion message
+      showToast("Interview completed! Redirecting to feedback...", "success")
+      
+      // Navigate to feedback after delay
+      setTimeout(() => {
+        navigate("/feedback")
+      }, 2000)
+    } catch (error) {
+      console.error("Error completing interview:", error)
+      showToast("Failed to complete interview", "error")
+      setIsEndingInterview(false)
+    }
+  }
+
+  // Camera initialization
   useEffect(() => {
     const initCamera = async () => {
       try {
@@ -172,54 +295,60 @@ export default function InterviewPage() {
       if (stream) {
         stream.getTracks().forEach((track) => track.stop())
       }
+      
+      // Cleanup Gemini Live session
+      if (liveConversation.current) {
+        liveConversation.current.endConversation()
+      }
+      
+      // Cleanup TTS service
+      if (ttsService.current) {
+        ttsService.current.cleanup()
+      }
     }
   }, [])
 
-  const speakQuestion = () => {
-    const speech = new SpeechSynthesisUtterance(questions[currentQuestion]?.question)
-    window.speechSynthesis.speak(speech)
-  }
+  // Initial load
+  useEffect(() => {
+    initializeInterview()
+  }, [])
 
-  const startRecording = () => {
-    setIsRecording(true)
-    setTranscript("")
-    setInterimTranscript("")
-
-    speechRecognition.current.startRecording(
-      (finalTranscript, interim) => {
-        setTranscript(finalTranscript)
-        setInterimTranscript(interim)
-      },
-      async (finalTranscript) => {
-        setIsRecording(false)
-        try {
-          const interviewId = localStorage.getItem("currentInterviewId")
-          const attemptId = localStorage.getItem("currentAttemptId")
-          await saveAnswer(interviewId, attemptId, currentQuestion, finalTranscript, questions[currentQuestion])
-
-          setAnsweredQuestions((prev) => new Set(prev).add(currentQuestion))
-
-          showToast(`Your answer has been saved.`)
-
-          // Automatically move to the next question after a short delay
-          setTimeout(() => {
-            if (currentQuestion < questions.length - 1) {
-              setCurrentQuestion((prev) => prev + 1)
-            } else {
-              showToast("You've answered all questions. You can now end the interview.")
-            }
-          }, 2000)
-        } catch (error) {
-          console.error("Error saving answer:", error)
-          showToast(`Failed to save your answer: ${error.message}`, "error")
+  // Camera initialization
+  useEffect(() => {
+    const initCamera = async () => {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        })
+        setStream(mediaStream)
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream
         }
-      },
-    )
-  }
+      } catch (err) {
+        console.error("Error accessing camera:", err)
+        showToast("Unable to access camera. Please check your permissions.", "error")
+        setIsCameraOn(false)
+      }
+    }
+    initCamera()
 
-  const stopRecording = () => {
-    speechRecognition.current.stopRecording()
-  }
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop())
+      }
+      
+      // Cleanup Gemini Live session
+      if (liveConversation.current) {
+        liveConversation.current.endConversation()
+      }
+      
+      // Cleanup TTS service
+      if (ttsService.current) {
+        ttsService.current.cleanup()
+      }
+    }
+  }, [])
 
   const toggleCamera = () => {
     setIsCameraOn((prevState) => {
@@ -233,52 +362,30 @@ export default function InterviewPage() {
     })
   }
 
-  const endInterview = async () => {
-    if (answeredQuestions.size < questions.length) {
-      showToast("Please answer all questions before ending the interview.", "error")
-      return
-    }
-    setIsEndingInterview(true)
-    try {
-      const interviewId = localStorage.getItem("currentInterviewId")
-      const attemptId = localStorage.getItem("currentAttemptId")
-
-      // Calculate and update the attempt score
-      const averageScore = await completeAttempt(interviewId, attemptId)
-
-      // Mark interview as no longer in progress
-      setInterviewInProgress(false)
-
-      // Navigate to feedback page
-      navigate("/feedback")
-    } catch (error) {
-      console.error("Error completing attempt:", error)
-      showToast(`Failed to complete the interview: ${error.message}`, "error")
-    } finally {
-      setIsEndingInterview(false)
-    }
+  const toggleMicrophone = () => {
+    // With Gemini Live API, audio streaming is always on
+    // This button now just mutes/unmutes (for future implementation)
+    // The AI handles turn-taking automatically
+    showToast("Microphone is always active during live interview", "info")
   }
 
-  const retakeInterview = async () => {
+  const endInterview = async () => {
+    const confirmEnd = window.confirm("Are you sure you want to end the interview? Your progress will be saved.")
+    if (!confirmEnd) return
+
     try {
-      setIsLoading(true)
-
-      // Clear all state
-      setQuestions([])
-      setAnsweredQuestions(new Set())
-      setCurrentQuestion(0)
-      setTranscript("")
-      setInterimTranscript("")
-
-      // Initialize with forced new questions
-      await initializeInterview(true)
-
-      showToast("Interview reset successfully. New questions generated.", "success")
+      setIsEndingInterview(true)
+      
+      // End the Gemini Live conversation gracefully
+      if (liveConversation.current) {
+        await liveConversation.current.endConversation()
+      }
+      
+      await completeInterviewSession()
     } catch (error) {
-      console.error("Error retaking interview:", error)
-      showToast(`Failed to retake interview: ${error.message}`, "error")
-    } finally {
-      setIsLoading(false)
+      console.error("Error ending interview:", error)
+      showToast("Failed to end interview properly", "error")
+      setIsEndingInterview(false)
     }
   }
 
@@ -287,7 +394,7 @@ export default function InterviewPage() {
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-gray-900 mx-auto" />
-          <p className="mt-4 text-gray-600">Preparing your interview questions...</p>
+          <p className="mt-4 text-gray-600">Preparing your interview...</p>
         </div>
       </div>
     )
@@ -304,139 +411,131 @@ export default function InterviewPage() {
     )
   }
 
+  const progress = liveConversation.current?.getProgress() || { questionsAsked: 0, totalQuestions: 5, percentage: 0 }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
       <BeforeUnloadDialog 
         ref={beforeUnloadRef}
-        hasUnsavedChanges={interviewInProgress && answeredQuestions.size < questions.length}
+        hasUnsavedChanges={interviewInProgress && messages.length > 0}
         externalShowDialog={showNavigationDialog}
         onConfirmLeave={handleConfirmNavigation}
         onCancelLeave={handleCancelNavigation}
       />
       <Navbar />
       <ToastContainer />
+      
       <div className="flex-grow flex items-center justify-center p-4 sm:p-6">
-          <div className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Card - Questions */}
+        <div className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-180px)]">
+          
+          {/* Left Side - Video Feed & Controls */}
           <div className="bg-white rounded-xl border shadow-lg flex flex-col">
-            <div className="flex-1 p-4 sm:p-6">
-              {/* Question Tabs */}
-              <div className="grid grid-cols-5 gap-2 mb-6">
-                {questions.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentQuestion(index)}
-                    className={`w-full px-3 py-2 rounded-md text-sm font-medium transition-colors
-                      ${
-                        currentQuestion === index
-                          ? "bg-black text-white"
-                          : answeredQuestions.has(index)
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                      }`}
-                  >
-                    Question {index + 1}
-                  </button>
-                ))}
-              </div>
-
-              <div className="space-y-4">
-                <div className="min-h-[100px]">
-                  <h2 className="text-xl sm:text-2xl font-semibold mb-2">{questions[currentQuestion]?.question}</h2>
-                  <button
-                    onClick={speakQuestion}
-                    className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-                  >
-                    <Volume2 className="h-4 w-4" />
-                  </button>
+            {/* Video Feed */}
+            <div className="relative flex-1 bg-gray-900 rounded-t-xl overflow-hidden">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className={`w-full h-full object-cover transform scale-x-[-1] ${!isCameraOn ? "invisible" : "visible"}`}
+              />
+              {!isCameraOn && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <VideoOff className="h-24 w-24 text-gray-600" />
                 </div>
+              )}
 
-                <div className="bg-gray-50 p-4 rounded-lg min-h-[100px] max-h-[200px] overflow-y-auto">
-                  {isRecording ? (
-                    <>
-                      <p className="text-sm text-gray-600">{interimTranscript}</p>
-                      <p className="text-sm font-medium">{transcript}</p>
-                    </>
-                  ) : (
-                    <p className="text-sm text-gray-500 italic">Your answer will appear here...</p>
-                  )}
+              {/* AI Status Indicator */}
+              {conversationState === 'ai-speaking' && (
+                <div className="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  AI is speaking...
                 </div>
+              )}
 
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="text-sm font-semibold text-blue-900 mb-2">Note:</h3>
-                  <p className="text-sm text-blue-700">
-                    Click on Record Answer when you're ready to answer the question. Your answer will be automatically
-                    saved when you finish speaking.
-                  </p>
+              {conversationState === 'listening' && (
+                <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  Listening...
                 </div>
+              )}
 
-                <div className="flex flex-col sm:flex-row justify-between gap-4 mt-4">
-                  <button
-                    onClick={() => setCurrentQuestion((prev) => Math.max(0, prev - 1))}
-                    disabled={currentQuestion === 0}
-                    className={`w-full sm:w-auto px-4 py-2 rounded-md border border-black text-sm font-medium
-                      ${currentQuestion === 0 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-50"}`}
-                  >
-                    Previous Question
-                  </button>
-                  {currentQuestion === questions.length - 1 ? (
-                    <button
-                      onClick={endInterview}
-                      disabled={answeredQuestions.size < questions.length}
-                      className={`w-full sm:w-auto px-4 py-2 rounded-md text-sm font-medium text-white
-                        ${
-                          answeredQuestions.size < questions.length
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-red-600 hover:bg-red-700"
-                        }`}
-                    >
-                      End Interview
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => setCurrentQuestion((prev) => prev + 1)}
-                      className="w-full sm:w-auto px-4 py-2 rounded-md text-sm font-medium bg-black hover:bg-gray-800 text-white"
-                    >
-                      Next Question
-                    </button>
-                  )}
+              {conversationState === 'processing' && (
+                <div className="absolute top-4 left-4 bg-yellow-600 text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Processing...
                 </div>
-              </div>
-            </div>
-          </div>
+              )}
 
-          {/* Right Card - Video */}
-          <div className="bg-white rounded-xl border shadow-lg flex flex-col">
-            <div className="flex-1 p-4 sm:p-6 flex flex-col">
-              <div className="relative flex-1 bg-gray-900 rounded-lg overflow-hidden">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className={`w-full h-full object-cover transform scale-x-[-1] ${!isCameraOn ? "invisible" : "visible"}`}
-                />
-                {!isCameraOn && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <VideoOff className="h-24 w-24 text-gray-600" />
+              {/* Progress Bar */}
+              {progress && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gray-900/80 p-3">
+                  <div className="flex items-center justify-between text-white text-xs mb-1">
+                    <span>Interview Progress</span>
+                    <span>{progress.questionsAsked} / {progress.totalQuestions} questions</span>
                   </div>
-                )}
-              </div>
+                  <div className="w-full bg-gray-700 rounded-full h-1.5">
+                    <div 
+                      className="bg-blue-500 h-1.5 rounded-full transition-all duration-500"
+                      style={{ width: `${progress.percentage}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
 
-              <div className="flex justify-between items-center mt-4">
-                <button onClick={toggleCamera} className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50">
-                  <Video className="h-5 w-5" />
+            {/* Controls */}
+            <div className="p-4 bg-gray-50 rounded-b-xl border-t">
+              <div className="flex items-center justify-between">
+                <button 
+                  onClick={toggleCamera} 
+                  className={`p-3 rounded-lg border transition-colors ${
+                    isCameraOn 
+                      ? 'border-gray-300 hover:bg-gray-100' 
+                      : 'border-red-300 bg-red-50 text-red-600'
+                  }`}
+                  title={isCameraOn ? "Turn off camera" : "Turn on camera"}
+                >
+                  {isCameraOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
                 </button>
 
-                <button
-                  onClick={isRecording ? stopRecording : startRecording}
-                  className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+                <button 
+                  onClick={toggleMicrophone}
+                  disabled={conversationState === 'ai-speaking' || conversationState === 'processing'}
+                  className={`p-3 rounded-lg border transition-colors ${
+                    conversationState === 'listening'
+                      ? 'border-green-500 bg-green-50 text-green-600'
+                      : 'border-gray-300 hover:bg-gray-100'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  title={conversationState === 'listening' ? "Stop listening" : "Start listening"}
                 >
-                  <Mic className={`h-5 w-5 ${isRecording ? "text-red-500" : "text-gray-600"}`} />
+                  {conversationState === 'listening' ? (
+                    <Mic className="h-5 w-5" />
+                  ) : (
+                    <MicOff className="h-5 w-5" />
+                  )}
+                </button>
+
+                <button 
+                  onClick={endInterview}
+                  className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors text-sm font-medium"
+                >
+                  End Interview
                 </button>
               </div>
             </div>
           </div>
+
+          {/* Right Side - Live Transcript */}
+          <div className="bg-white rounded-xl border shadow-lg overflow-hidden">
+            <TranscriptPanel 
+              messages={messages}
+              isAISpeaking={conversationState === 'ai-speaking'}
+              isProcessing={conversationState === 'processing'}
+              interimTranscript={interimTranscript}
+            />
+          </div>
+
         </div>
       </div>
     </div>

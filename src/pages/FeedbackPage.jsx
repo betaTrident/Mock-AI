@@ -5,8 +5,8 @@ import { db } from "../firebase"
 import Navbar from "../components/ui/Navbar"
 import { Loader2, CheckCircle, ChevronDown, ChevronUp, ArrowLeft, TrendingUp, TrendingDown } from "lucide-react"
 import confetti from "canvas-confetti"
-import { generateFeedback } from "../../backend/services/feedback"
-import { getAttempts } from "../../backend/services/attemptService"
+import { generateFeedback } from "../services/feedback"
+import { getAttempts } from "../services/attemptService"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 
 const PASSING_SCORE = 5.0

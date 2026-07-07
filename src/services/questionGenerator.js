@@ -25,7 +25,7 @@ export async function generateQuestions(interviewData) {
       - question: the interview question
       - expectedAnswer: detailed expected answer for scoring
       - maxScore: maximum score for this question (1-10)
-      - keyPoints: array of key points that should be mentioned for full scoreSugo
+      - keyPoints: array of key points that should be mentioned for full score
     `;
 
     const result = await model.generateContent(prompt);

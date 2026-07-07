@@ -1,5 +1,5 @@
 import { doc, setDoc, collection, getDoc } from "firebase/firestore"
-import { db } from "../../src/firebase"
+import { db } from "../firebase"
 import { getAuth } from "firebase/auth"
 
 export async function saveAnswer(interviewId, attemptId, questionIndex, answer, question) {
@@ -66,4 +66,3 @@ export function calculateScore(answer, keyPoints) {
 
   return (score / keyPoints.length) * 10
 }
-
