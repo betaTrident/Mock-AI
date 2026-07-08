@@ -1,0 +1,82 @@
+[
+  {
+    "question": "How do you design a CI/CD pipeline for Kubernetes deployments?",
+    "category": "technical",
+    "idealAnswer": "Build, test, scan, progressive rollout, and automated rollback.",
+    "keywords": ["cicd", "kubernetes", "deployment"],
+    "difficulty": "mid",
+    "role": "devops"
+  },
+  {
+    "question": "Describe your approach to infrastructure as code.",
+    "category": "technical",
+    "idealAnswer": "Terraform modules, state management, review process, and drift detection.",
+    "keywords": ["iac", "terraform", "modules"],
+    "difficulty": "mid",
+    "role": "devops"
+  },
+  {
+    "question": "How do you monitor SLOs for a critical service?",
+    "category": "technical",
+    "idealAnswer": "SLI selection, error budgets, alerting, and runbooks.",
+    "keywords": ["slo", "monitoring", "alerting"],
+    "difficulty": "mid",
+    "role": "devops"
+  },
+  {
+    "question": "Tell me about a production outage you helped resolve.",
+    "category": "behavioral",
+    "idealAnswer": "Detection, mitigation, communication, RCA, and prevention.",
+    "keywords": ["incident", "rca", "on-call"],
+    "difficulty": "mid",
+    "role": "devops"
+  },
+  {
+    "question": "How would you secure secrets in a cloud environment?",
+    "category": "technical",
+    "idealAnswer": "Secret manager, rotation, least privilege, and audit logging.",
+    "keywords": ["secrets", "security", "iam"],
+    "difficulty": "mid",
+    "role": "devops"
+  },
+  {
+    "question": "What strategies reduce cloud costs without hurting reliability?",
+    "category": "technical",
+    "idealAnswer": "Right-sizing, autoscaling, reserved capacity, and waste analysis.",
+    "keywords": ["finops", "cost", "autoscaling"],
+    "difficulty": "mid",
+    "role": "devops"
+  },
+  {
+    "question": "How do you implement blue-green or canary deployments?",
+    "category": "technical",
+    "idealAnswer": "Traffic shifting, health checks, metrics gates, and rollback.",
+    "keywords": ["canary", "blue-green", "release"],
+    "difficulty": "mid",
+    "role": "devops"
+  },
+  {
+    "question": "Explain container image hardening best practices.",
+    "category": "technical",
+    "idealAnswer": "Minimal base images, non-root users, scanning, and pinned versions.",
+    "keywords": ["containers", "security", "docker"],
+    "difficulty": "mid",
+    "role": "devops"
+  },
+  {
+    "question": "How do you manage multi-environment configuration?",
+    "category": "technical",
+    "idealAnswer": "Env-specific values, secrets separation, and promotion workflow.",
+    "keywords": ["config", "environments", "deployment"],
+    "difficulty": "mid",
+    "role": "devops"
+  },
+  {
+    "question": "How would you improve deployment frequency for a legacy team?",
+    "category": "situational",
+    "idealAnswer": "Incremental automation, cultural change, and measurable milestones.",
+    "keywords": ["devops", "culture", "automation"],
+    "difficulty": "mid",
+    "role": "devops"
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "question": "How do you prioritize a product backlog with limited engineering capacity?",
+    "category": "technical",
+    "idealAnswer": "Impact vs effort, stakeholder input, data, and clear tradeoff communication.",
+    "keywords": ["prioritization", "backlog", "roadmap"],
+    "difficulty": "junior",
+    "role": "product"
+  },
+  {
+    "question": "Walk me through writing a user story for a new feature.",
+    "category": "technical",
+    "idealAnswer": "Persona, problem, acceptance criteria, and success metrics.",
+    "keywords": ["user story", "requirements", "criteria"],
+    "difficulty": "junior",
+    "role": "product"
+  },
+  {
+    "question": "How do you gather customer feedback before building?",
+    "category": "behavioral",
+    "idealAnswer": "Interviews, surveys, analytics, and hypothesis validation.",
+    "keywords": ["research", "feedback", "discovery"],
+    "difficulty": "junior",
+    "role": "product"
+  },
+  {
+    "question": "What metrics would you track for a new onboarding flow?",
+    "category": "technical",
+    "idealAnswer": "Activation rate, drop-off steps, time-to-value, and retention.",
+    "keywords": ["metrics", "onboarding", "analytics"],
+    "difficulty": "junior",
+    "role": "product"
+  },
+  {
+    "question": "How do you handle conflicting requests from sales and engineering?",
+    "category": "situational",
+    "idealAnswer": "Align on goals, data-driven decisions, and transparent prioritization.",
+    "keywords": ["stakeholders", "conflict", "alignment"],
+    "difficulty": "junior",
+    "role": "product"
+  },
+  {
+    "question": "Describe a product decision you made that did not work out.",
+    "category": "behavioral",
+    "idealAnswer": "Assumptions, signals missed, learning, and corrective action.",
+    "keywords": ["failure", "learning", "iteration"],
+    "difficulty": "junior",
+    "role": "product"
+  },
+  {
+    "question": "How do you define MVP scope?",
+    "category": "technical",
+    "idealAnswer": "Core user problem, smallest testable solution, and explicit non-goals.",
+    "keywords": ["mvp", "scope", "validation"],
+    "difficulty": "junior",
+    "role": "product"
+  },
+  {
+    "question": "What is your process for writing a PRD?",
+    "category": "technical",
+    "idealAnswer": "Problem statement, users, requirements, risks, and launch plan.",
+    "keywords": ["prd", "documentation", "planning"],
+    "difficulty": "junior",
+    "role": "product"
+  },
+  {
+    "question": "How do you work with designers on UX tradeoffs?",
+    "category": "behavioral",
+    "idealAnswer": "Shared goals, usability testing, constraints, and iterative refinement.",
+    "keywords": ["design", "ux", "collaboration"],
+    "difficulty": "junior",
+    "role": "product"
+  },
+  {
+    "question": "How would you launch a feature to reduce risk?",
+    "category": "situational",
+    "idealAnswer": "Beta cohort, feature flags, monitoring, and rollback criteria.",
+    "keywords": ["launch", "feature flags", "risk"],
+    "difficulty": "junior",
+    "role": "product"
+  }
+]

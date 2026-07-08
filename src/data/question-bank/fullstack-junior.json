@@ -1,0 +1,82 @@
+[
+  {
+    "question": "What is the difference between let, const, and var in JavaScript?",
+    "category": "technical",
+    "idealAnswer": "Explain block scope, hoisting behavior, and reassignment rules.",
+    "keywords": ["javascript", "scope", "variables"],
+    "difficulty": "junior",
+    "role": "fullstack"
+  },
+  {
+    "question": "How does the event loop work in Node.js?",
+    "category": "technical",
+    "idealAnswer": "Call stack, task queue, microtasks, and non-blocking I/O basics.",
+    "keywords": ["node", "event loop", "async"],
+    "difficulty": "junior",
+    "role": "fullstack"
+  },
+  {
+    "question": "Describe a small full-stack feature you built end to end.",
+    "category": "behavioral",
+    "idealAnswer": "Requirements, API design, UI, testing, and deployment steps.",
+    "keywords": ["fullstack", "project", "delivery"],
+    "difficulty": "junior",
+    "role": "fullstack"
+  },
+  {
+    "question": "How do you connect a React frontend to a REST API?",
+    "category": "technical",
+    "idealAnswer": "fetch/axios, loading/error states, auth headers, and data modeling.",
+    "keywords": ["react", "rest", "api"],
+    "difficulty": "junior",
+    "role": "fullstack"
+  },
+  {
+    "question": "What is SQL JOIN and when would you use LEFT vs INNER?",
+    "category": "technical",
+    "idealAnswer": "Relate tables, filter unmatched rows, and example use cases.",
+    "keywords": ["sql", "join", "database"],
+    "difficulty": "junior",
+    "role": "fullstack"
+  },
+  {
+    "question": "How do you handle form validation on client and server?",
+    "category": "technical",
+    "idealAnswer": "Schema validation, UX feedback, and never trust client-only checks.",
+    "keywords": ["validation", "forms", "security"],
+    "difficulty": "junior",
+    "role": "fullstack"
+  },
+  {
+    "question": "Tell me about a bug you fixed that taught you something.",
+    "category": "behavioral",
+    "idealAnswer": "Reproduction, root cause, fix, and lesson learned.",
+    "keywords": ["debugging", "learning"],
+    "difficulty": "junior",
+    "role": "fullstack"
+  },
+  {
+    "question": "What is Git rebase vs merge?",
+    "category": "technical",
+    "idealAnswer": "History rewriting, when to use each, and team workflow implications.",
+    "keywords": ["git", "rebase", "merge"],
+    "difficulty": "junior",
+    "role": "fullstack"
+  },
+  {
+    "question": "How would you deploy a simple web app?",
+    "category": "technical",
+    "idealAnswer": "Build step, env vars, hosting choice, and basic CI.",
+    "keywords": ["deployment", "ci", "hosting"],
+    "difficulty": "junior",
+    "role": "fullstack"
+  },
+  {
+    "question": "How do you prioritize tasks when requirements are unclear?",
+    "category": "situational",
+    "idealAnswer": "Clarify scope, deliver MVP, communicate risks, and iterate.",
+    "keywords": ["prioritization", "communication"],
+    "difficulty": "junior",
+    "role": "fullstack"
+  }
+]

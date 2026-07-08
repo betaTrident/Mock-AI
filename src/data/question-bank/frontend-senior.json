@@ -1,0 +1,82 @@
+[
+  {
+    "question": "How do you approach performance optimization in a large React application?",
+    "category": "technical",
+    "idealAnswer": "Discuss profiling, memoization, code splitting, virtual lists, and measuring before optimizing.",
+    "keywords": ["react", "performance", "memo", "profiling"],
+    "difficulty": "senior",
+    "role": "frontend"
+  },
+  {
+    "question": "Describe a time you improved Core Web Vitals on a production site.",
+    "category": "behavioral",
+    "idealAnswer": "Explain baseline metrics, changes made, and measurable impact on LCP/CLS/INP.",
+    "keywords": ["web vitals", "lcp", "performance"],
+    "difficulty": "senior",
+    "role": "frontend"
+  },
+  {
+    "question": "How do you design a component API that stays flexible across teams?",
+    "category": "technical",
+    "idealAnswer": "Cover composition, controlled vs uncontrolled patterns, accessibility, and versioning.",
+    "keywords": ["components", "api design", "accessibility"],
+    "difficulty": "senior",
+    "role": "frontend"
+  },
+  {
+    "question": "Walk through your strategy for state management in a complex dashboard.",
+    "category": "technical",
+    "idealAnswer": "Compare local state, context, and external stores with tradeoffs for scale and testability.",
+    "keywords": ["state", "redux", "architecture"],
+    "difficulty": "senior",
+    "role": "frontend"
+  },
+  {
+    "question": "How do you ensure accessibility is not an afterthought?",
+    "category": "behavioral",
+    "idealAnswer": "Mention linting, keyboard flows, screen reader testing, and design system standards.",
+    "keywords": ["a11y", "wcag", "testing"],
+    "difficulty": "senior",
+    "role": "frontend"
+  },
+  {
+    "question": "Explain how you would migrate a legacy jQuery module to React incrementally.",
+    "category": "situational",
+    "idealAnswer": "Strangler pattern, shared boundaries, feature flags, and risk mitigation.",
+    "keywords": ["migration", "react", "legacy"],
+    "difficulty": "senior",
+    "role": "frontend"
+  },
+  {
+    "question": "How do you debug a hydration mismatch in Next.js?",
+    "category": "technical",
+    "idealAnswer": "Identify server/client divergence, dynamic imports, date/random usage, and logging.",
+    "keywords": ["next.js", "hydration", "ssr"],
+    "difficulty": "senior",
+    "role": "frontend"
+  },
+  {
+    "question": "Tell me about a design-system contribution you led.",
+    "category": "behavioral",
+    "idealAnswer": "Stakeholder alignment, documentation, adoption metrics, and maintenance plan.",
+    "keywords": ["design system", "leadership"],
+    "difficulty": "senior",
+    "role": "frontend"
+  },
+  {
+    "question": "How would you structure frontend testing for a critical checkout flow?",
+    "category": "technical",
+    "idealAnswer": "Unit, integration, and e2e layers with mocking strategy and CI gates.",
+    "keywords": ["testing", "e2e", "ci"],
+    "difficulty": "senior",
+    "role": "frontend"
+  },
+  {
+    "question": "What tradeoffs do you consider when choosing between SSR, SSG, and CSR?",
+    "category": "technical",
+    "idealAnswer": "SEO, TTFB, personalization, caching, and operational complexity.",
+    "keywords": ["ssr", "ssg", "rendering"],
+    "difficulty": "senior",
+    "role": "frontend"
+  }
+]

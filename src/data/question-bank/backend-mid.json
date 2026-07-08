@@ -1,0 +1,82 @@
+[
+  {
+    "question": "How do you design idempotent APIs for payment webhooks?",
+    "category": "technical",
+    "idealAnswer": "Use idempotency keys, deduplication store, and safe retries with signature verification.",
+    "keywords": ["idempotency", "webhooks", "payments"],
+    "difficulty": "mid",
+    "role": "backend"
+  },
+  {
+    "question": "Describe your approach to database indexing for a high-read workload.",
+    "category": "technical",
+    "idealAnswer": "Analyze query patterns, composite indexes, explain plans, and monitor slow queries.",
+    "keywords": ["database", "indexing", "performance"],
+    "difficulty": "mid",
+    "role": "backend"
+  },
+  {
+    "question": "How do you handle authentication and authorization in microservices?",
+    "category": "technical",
+    "idealAnswer": "JWT vs session, service-to-service auth, RBAC, and token validation at the gateway.",
+    "keywords": ["auth", "microservices", "rbac"],
+    "difficulty": "mid",
+    "role": "backend"
+  },
+  {
+    "question": "Tell me about a production incident you resolved under pressure.",
+    "category": "behavioral",
+    "idealAnswer": "Triage, rollback/mitigation, communication, root cause, and preventive action.",
+    "keywords": ["incident", "on-call", "debugging"],
+    "difficulty": "mid",
+    "role": "backend"
+  },
+  {
+    "question": "How would you implement rate limiting for a public API?",
+    "category": "technical",
+    "idealAnswer": "Token bucket/sliding window, Redis, per-key limits, and graceful 429 responses.",
+    "keywords": ["rate limiting", "redis", "api"],
+    "difficulty": "mid",
+    "role": "backend"
+  },
+  {
+    "question": "What is your strategy for schema migrations with zero downtime?",
+    "category": "technical",
+    "idealAnswer": "Expand-contract pattern, backward-compatible deploys, and rollback plan.",
+    "keywords": ["migrations", "zero downtime"],
+    "difficulty": "mid",
+    "role": "backend"
+  },
+  {
+    "question": "How do you structure logging and tracing across services?",
+    "category": "technical",
+    "idealAnswer": "Structured logs, correlation IDs, OpenTelemetry, and actionable alert thresholds.",
+    "keywords": ["observability", "tracing", "logging"],
+    "difficulty": "mid",
+    "role": "backend"
+  },
+  {
+    "question": "Explain caching layers you would add to a read-heavy API.",
+    "category": "technical",
+    "idealAnswer": "CDN, application cache, cache invalidation, and TTL strategy.",
+    "keywords": ["caching", "redis", "cdn"],
+    "difficulty": "mid",
+    "role": "backend"
+  },
+  {
+    "question": "How do you validate input at API boundaries?",
+    "category": "technical",
+    "idealAnswer": "Schema validation, type safety, sanitization, and consistent error responses.",
+    "keywords": ["validation", "zod", "security"],
+    "difficulty": "mid",
+    "role": "backend"
+  },
+  {
+    "question": "Describe how you would break down a monolith into services.",
+    "category": "situational",
+    "idealAnswer": "Domain boundaries, incremental extraction, data ownership, and team alignment.",
+    "keywords": ["monolith", "microservices", "architecture"],
+    "difficulty": "mid",
+    "role": "backend"
+  }
+]

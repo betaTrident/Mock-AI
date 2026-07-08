@@ -1,0 +1,82 @@
+[
+  {
+    "question": "How do you diagnose overfitting in a production ML model?",
+    "category": "technical",
+    "idealAnswer": "Train/val gap, cross-validation, regularization, and monitoring drift.",
+    "keywords": ["overfitting", "validation", "mlops"],
+    "difficulty": "senior",
+    "role": "data-science"
+  },
+  {
+    "question": "Describe your approach to feature engineering for tabular data.",
+    "category": "technical",
+    "idealAnswer": "Domain features, encoding, leakage prevention, and ablation tests.",
+    "keywords": ["features", "tabular", "leakage"],
+    "difficulty": "senior",
+    "role": "data-science"
+  },
+  {
+    "question": "How would you design an A/B test for a recommendation model?",
+    "category": "technical",
+    "idealAnswer": "Hypothesis, metrics, sample size, guardrails, and analysis plan.",
+    "keywords": ["ab test", "experimentation", "metrics"],
+    "difficulty": "senior",
+    "role": "data-science"
+  },
+  {
+    "question": "Tell me about a model you put into production.",
+    "category": "behavioral",
+    "idealAnswer": "Serving, monitoring, retraining triggers, and stakeholder impact.",
+    "keywords": ["production", "mlops", "deployment"],
+    "difficulty": "senior",
+    "role": "data-science"
+  },
+  {
+    "question": "How do you handle class imbalance in classification?",
+    "category": "technical",
+    "idealAnswer": "Resampling, class weights, appropriate metrics, and threshold tuning.",
+    "keywords": ["imbalance", "classification", "metrics"],
+    "difficulty": "senior",
+    "role": "data-science"
+  },
+  {
+    "question": "Explain bias-variance tradeoff with a real project example.",
+    "category": "technical",
+    "idealAnswer": "Model complexity, error decomposition, and chosen mitigation.",
+    "keywords": ["bias", "variance", "tradeoff"],
+    "difficulty": "senior",
+    "role": "data-science"
+  },
+  {
+    "question": "How do you evaluate an LLM-based application beyond accuracy?",
+    "category": "technical",
+    "idealAnswer": "Latency, cost, safety, hallucination rate, and human eval loops.",
+    "keywords": ["llm", "evaluation", "safety"],
+    "difficulty": "senior",
+    "role": "data-science"
+  },
+  {
+    "question": "What is your process for exploratory data analysis?",
+    "category": "technical",
+    "idealAnswer": "Distributions, missing data, correlations, and hypothesis formation.",
+    "keywords": ["eda", "analysis", "statistics"],
+    "difficulty": "senior",
+    "role": "data-science"
+  },
+  {
+    "question": "How do you communicate model limitations to non-technical stakeholders?",
+    "category": "behavioral",
+    "idealAnswer": "Plain language, uncertainty, failure modes, and decision boundaries.",
+    "keywords": ["communication", "stakeholders"],
+    "difficulty": "senior",
+    "role": "data-science"
+  },
+  {
+    "question": "Design a pipeline for nightly batch scoring at scale.",
+    "category": "situational",
+    "idealAnswer": "Orchestration, partitioning, idempotency, and SLA monitoring.",
+    "keywords": ["pipeline", "batch", "scale"],
+    "difficulty": "senior",
+    "role": "data-science"
+  }
+]
