@@ -57,7 +57,7 @@ ${summary}`
         ...output,
         attemptId: input.attemptId,
       })
-    })
+    }, { agentName: 'evaluator', attemptId: context.attemptId, input: { attemptId: input.attemptId, questionCount: input.questions.length } })
 
     await completeAgentRun(runId, {
       output: result,

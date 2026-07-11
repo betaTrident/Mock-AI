@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 import { BotIcon, UserIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -35,59 +36,72 @@ export function TranscriptPanel({
   }, [messages, interimTranscript, isProcessing])
 
   return (
-    <div className={cn("flex h-full flex-col", className)}>
+    <div className={cn("flex h-full flex-col", className)} aria-label="Live transcript">
       <div className="border-b border-border px-4 py-3">
         <h3 className="text-sm font-semibold">Live Transcript</h3>
         <p className="text-xs text-muted-foreground">Real-time conversation</p>
       </div>
 
       <ScrollArea className="flex-1 p-4">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4" aria-live="polite">
           {messages.length === 0 && !isProcessing ? (
             <div className="flex flex-col items-center gap-2 py-8 text-center text-sm text-muted-foreground">
-              <BotIcon className="size-10 opacity-50" />
+              <BotIcon className="size-10 opacity-50" aria-hidden="true" />
               <p>Waiting for interview to begin...</p>
             </div>
           ) : null}
 
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={cn(
-                "flex gap-2",
-                message.role === "candidate" ? "justify-end" : "justify-start"
-              )}
-            >
-              {message.role === "interviewer" ? (
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary">
-                  <BotIcon className="size-4" />
-                </div>
-              ) : null}
-              <div
+          <AnimatePresence initial={false}>
+            {messages.map((message) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.25 }}
                 className={cn(
-                  "max-w-[85%] rounded-xl px-3 py-2 text-sm",
-                  message.role === "candidate"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
+                  "flex gap-2",
+                  message.role === "candidate" ? "justify-end" : "justify-start"
                 )}
               >
-                {message.agentName ? (
-                  <Badge variant="outline" className="mb-1 text-xs">
-                    {message.agentName}
-                  </Badge>
+                {message.role === "interviewer" ? (
+                  <div
+                    className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary"
+                    aria-hidden="true"
+                  >
+                    <BotIcon className="size-4" />
+                  </div>
                 ) : null}
-                <p>{message.content}</p>
-              </div>
-              {message.role === "candidate" ? (
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary">
-                  <UserIcon className="size-4 text-primary-foreground" />
+                <div
+                  className={cn(
+                    "max-w-[85%] rounded-xl px-3 py-2 text-sm",
+                    message.role === "candidate"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-foreground"
+                  )}
+                  role="article"
+                  aria-label={`${message.role === "candidate" ? "You" : "Interviewer"} said`}
+                >
+                  {message.agentName ? (
+                    <Badge variant="outline" className="mb-1 text-xs">
+                      {message.agentName}
+                    </Badge>
+                  ) : null}
+                  <p>{message.content}</p>
                 </div>
-              ) : null}
-            </div>
-          ))}
+                {message.role === "candidate" ? (
+                  <div
+                    className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary"
+                    aria-hidden="true"
+                  >
+                    <UserIcon className="size-4 text-primary-foreground" />
+                  </div>
+                ) : null}
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
           {isProcessing ? (
-            <div className="flex gap-2">
+            <div className="flex gap-2" aria-live="polite" aria-label="Processing response">
               <Skeleton className="size-8 rounded-full" />
               <Skeleton className="h-10 w-24 rounded-xl" />
             </div>

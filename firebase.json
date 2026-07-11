@@ -1,4 +1,26 @@
 {
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "MockAI",
+        "supportEmail": "support@mockai.app",
+        "authorizedRedirectUris": [
+          "http://localhost",
+          "https://linguasphere-e056b.firebaseapp.com",
+          "https://linguasphere-e056b.web.app"
+        ]
+      }
+    },
+    "authorizedDomains": [
+      "localhost",
+      "linguasphere-e056b.firebaseapp.com",
+      "linguasphere-e056b.web.app"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "hosting": {
     "public": "public",
     "site": "linguasphere-e056b-b0774",

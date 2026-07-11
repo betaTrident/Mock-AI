@@ -6,6 +6,11 @@ import type { AgentName } from '@/components/interview/AgentStatusIndicator'
 import type { TranscriptMessage } from '@/components/interview/TranscriptPanel'
 import { SpeechRecognitionService } from '@/features/interview/speech-recognition'
 import { TextToSpeechService } from '@/features/interview/text-to-speech'
+import {
+  syncTranscript,
+  TRANSCRIPT_AUTO_SAVE_MS,
+  type PendingTranscriptEvent,
+} from '@/features/interview/recovery'
 import { PLACEHOLDER_WORKSPACE } from '@/lib/placeholder-data'
 
 type AgentStepResponse = {
@@ -18,13 +23,9 @@ type AgentStepResponse = {
 
 type UseInterviewSessionOptions = {
   attemptId: string
-  getAuthToken?: () => Promise<string | null>
 }
 
-export function useInterviewSession({
-  attemptId,
-  getAuthToken,
-}: UseInterviewSessionOptions) {
+export function useInterviewSession({ attemptId }: UseInterviewSessionOptions) {
   const [question, setQuestion] = useState(PLACEHOLDER_WORKSPACE.question)
   const [questionIndex, setQuestionIndex] = useState(0)
   const [totalQuestions, setTotalQuestions] = useState(
@@ -50,16 +51,11 @@ export function useInterviewSession({
 
   const postAgentStep = useCallback(
     async (candidateMessage?: string) => {
-      const token = getAuthToken ? await getAuthToken() : null
-      if (!token) return null
-
       setActiveAgent(candidateMessage ? 'followup' : 'planner')
       const response = await fetch(`/api/attempts/${attemptId}/agent-step`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ candidateMessage }),
       })
 
@@ -69,7 +65,7 @@ export function useInterviewSession({
 
       return (await response.json()) as AgentStepResponse
     },
-    [attemptId, getAuthToken]
+    [attemptId]
   )
 
   const applyAgentResponse = useCallback(async (result: AgentStepResponse) => {
@@ -169,13 +165,35 @@ export function useInterviewSession({
     speechRef.current = new SpeechRecognitionService()
     ttsRef.current = new TextToSpeechService()
     void ttsRef.current.initialize()
-    void startInterview()
+    const timer = window.setTimeout(() => {
+      void startInterview()
+    }, 0)
+    return () => window.clearTimeout(timer)
   }, [startInterview])
 
   useEffect(() => {
     const timer = setInterval(() => setElapsedSeconds((s) => s + 1), 1000)
     return () => clearInterval(timer)
   }, [])
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTranscript((current) => {
+        const events: PendingTranscriptEvent[] = current.map((message) => ({
+          id: message.id,
+          role: message.role,
+          content: message.content,
+          questionIndex: questionIndex,
+          agentName: message.agentName,
+        }))
+        if (events.length > 0) {
+          void syncTranscript(attemptId, events)
+        }
+        return current
+      })
+    }, TRANSCRIPT_AUTO_SAVE_MS)
+    return () => clearInterval(timer)
+  }, [attemptId, questionIndex])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

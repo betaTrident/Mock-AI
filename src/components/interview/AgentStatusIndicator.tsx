@@ -1,3 +1,7 @@
+"use client"
+
+import { motion } from "framer-motion"
+
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
@@ -26,7 +30,7 @@ export function AgentStatusIndicator({
 }: AgentStatusIndicatorProps) {
   if (isLoading) {
     return (
-      <div className={cn("flex items-center gap-2", className)}>
+      <div className={cn("flex items-center gap-2", className)} aria-live="polite">
         <Skeleton className="h-6 w-24" />
         <span className="text-xs text-muted-foreground">Agent running...</span>
       </div>
@@ -35,14 +39,25 @@ export function AgentStatusIndicator({
 
   if (!activeAgent) {
     return (
-      <Badge variant="outline" className={className}>
+      <Badge variant="outline" className={className} aria-live="polite">
         Idle
       </Badge>
     )
   }
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div
+      className={cn("flex items-center gap-2", className)}
+      role="status"
+      aria-live="polite"
+      aria-label={`Active agent: ${agentLabels[activeAgent]}`}
+    >
+      <motion.span
+        className="inline-block size-2 rounded-full bg-primary"
+        animate={{ opacity: [1, 0.3, 1] }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+        aria-hidden="true"
+      />
       <span className="text-xs text-muted-foreground">Active agent</span>
       <Badge variant="default">{agentLabels[activeAgent]}</Badge>
     </div>

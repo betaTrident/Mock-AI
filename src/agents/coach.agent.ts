@@ -43,7 +43,7 @@ Create a 4-week practice plan with specific tasks and resources.`
         { name: 'PracticePlan', description: 'Personalized interview practice plan' }
       )
       return PracticePlanSchema.parse(output)
-    })
+    }, { agentName: 'coach', attemptId: context.attemptId })
 
     await completeAgentRun(runId, {
       output: result,

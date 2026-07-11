@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/chart"
 import { PracticePlanCard, type PracticePlanData } from "@/components/interview/PracticePlanCard"
 import { ScoreCard, type ScoreCardData } from "@/components/interview/ScoreCard"
+import { ScoreReveal } from "@/components/interview/ScoreReveal"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 export type FeedbackReportData = {
@@ -57,7 +58,7 @@ export function FeedbackReport({ report }: FeedbackReportProps) {
         <CardHeader className="text-center">
           <CardDescription>Overall Score</CardDescription>
           <CardTitle className="text-5xl font-bold tabular-nums text-primary">
-            {report.percentageScore}%
+            <ScoreReveal value={report.percentageScore} />
           </CardTitle>
           <CardDescription>
             {report.overallScore} / {report.maxScore} points

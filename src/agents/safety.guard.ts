@@ -4,6 +4,8 @@ const INJECTION_PATTERNS = [
   /system\s*:\s*/i,
   /\[INST\]/i,
   /<\|.*?\|>/,
+  /act\s+as\s+(a\s+)?(?:different|new|another)/i,
+  /pretend\s+(you\s+are|to\s+be)/i,
 ]
 
 export interface GuardResult {
@@ -29,3 +31,5 @@ export async function guardOutput(text: string): Promise<GuardResult> {
   }
   return { safe: true }
 }
+
+export const INJECTION_PATTERN_COUNT = INJECTION_PATTERNS.length

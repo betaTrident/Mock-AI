@@ -13,6 +13,7 @@ type EmptyStateProps = {
   description: string
   actionLabel?: string
   onAction?: () => void
+  action?: React.ReactNode
   icon?: React.ReactNode
 }
 
@@ -21,6 +22,7 @@ export function EmptyState({
   description,
   actionLabel,
   onAction,
+  action,
   icon,
 }: EmptyStateProps) {
   return (
@@ -30,7 +32,9 @@ export function EmptyState({
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      {actionLabel && onAction ? (
+      {action ? (
+        <CardFooter className="justify-center">{action}</CardFooter>
+      ) : actionLabel && onAction ? (
         <CardFooter className="justify-center">
           <Button onClick={onAction}>{actionLabel}</Button>
         </CardFooter>

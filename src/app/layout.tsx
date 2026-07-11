@@ -1,7 +1,10 @@
 import type { Metadata } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
 import { ThemeProvider } from "next-themes"
+import { Analytics } from "@vercel/analytics/react"
 
+import { ErrorBoundary } from "@/components/shared/ErrorBoundary"
+import { SessionRefreshProvider } from "@/components/shared/SessionRefreshProvider"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
@@ -36,8 +39,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <TooltipProvider>
-            {children}
+            <ErrorBoundary>
+              <SessionRefreshProvider>{children}</SessionRefreshProvider>
+            </ErrorBoundary>
             <Toaster />
+            <Analytics />
           </TooltipProvider>
         </ThemeProvider>
       </body>

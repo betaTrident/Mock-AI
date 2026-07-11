@@ -13,7 +13,9 @@ function ensureAdmin() {
     getApps().length === 0
       ? initializeApp({
           credential: cert(
-            JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY!)
+            JSON.parse(
+              process.env.FIREBASE_SERVICE_ACCOUNT_KEY!.replace(/^['"]|['"]$/g, '')
+            )
           ),
         })
       : getApps()[0]

@@ -1,101 +1,73 @@
 "use client"
 
 import Link from "next/link"
-import { SearchIcon } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
+import { ProductLogo } from "@/components/shared/ProductLogo"
+import { ProPlanCard } from "@/components/shared/ProPlanCard"
 import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import { Separator } from "@/components/ui/separator"
-import { AppShellDivider, navItems, NavLink } from "@/components/shared/AppShell"
+  isNavItemActive,
+  primaryNavItems,
+  secondaryNavItems,
+  type NavItem,
+} from "@/components/shared/nav-config"
 import { UserMenu } from "@/components/shared/UserMenu"
-import { useEffect, useState } from "react"
+import { Separator } from "@/components/ui/separator"
+import { cn } from "@/lib/utils"
 
 type SidebarProps = {
   pathname: string
-  user?: {
+  user: {
     name: string
     email: string
     imageUrl?: string
   }
 }
 
-export function Sidebar({ pathname, user }: SidebarProps) {
-  const [commandOpen, setCommandOpen] = useState(false)
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault()
-        setCommandOpen((open) => !open)
-      }
-    }
-    document.addEventListener("keydown", onKeyDown)
-    return () => document.removeEventListener("keydown", onKeyDown)
-  }, [])
+function SidebarNavLink({ item, pathname }: { item: NavItem; pathname: string }) {
+  const isActive = isNavItemActive(item, pathname)
+  const Icon = item.icon
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 p-4">
-        <Link href="/dashboard" className="text-lg font-semibold tracking-tight">
-          MockAI
-        </Link>
-        <Button
-          variant="outline"
-          size="icon-sm"
-          className="hidden lg:inline-flex"
-          onClick={() => setCommandOpen(true)}
-          aria-label="Search"
-        >
-          <SearchIcon />
-        </Button>
+    <Link
+      href={item.href}
+      className={cn(
+        "product-nav-link",
+        isActive ? "product-nav-link--active" : "product-nav-link--inactive"
+      )}
+    >
+      <Icon className="size-4 shrink-0" />
+      {item.label}
+    </Link>
+  )
+}
+
+export function Sidebar({ pathname, user }: SidebarProps) {
+  return (
+    <div className="flex h-full flex-col bg-sidebar">
+      <div className="p-4">
+        <ProductLogo />
       </div>
 
-      <nav className="flex flex-col gap-1 px-3">
-        {navItems.map((item) => (
-          <NavLink key={item.href} {...item} pathname={pathname} />
+      <nav className="flex flex-col gap-0.5 px-3" aria-label="Primary">
+        {primaryNavItems.map((item) => (
+          <SidebarNavLink key={item.href} item={item} pathname={pathname} />
         ))}
       </nav>
 
-      <AppShellDivider />
+      <Separator className="my-3" />
 
-      <div className="mt-auto p-4">
-        <UserMenu
-          user={
-            user ?? {
-              name: "Guest User",
-              email: "guest@mockai.dev",
-            }
-          }
-        />
+      <nav className="flex flex-col gap-0.5 px-3" aria-label="Account">
+        {secondaryNavItems.map((item) => (
+          <SidebarNavLink key={item.href} item={item} pathname={pathname} />
+        ))}
+      </nav>
+
+      <div className="mt-auto space-y-3 pb-4">
+        <ProPlanCard />
+        <div className="px-3">
+          <UserMenu user={user} variant="sidebar" />
+        </div>
       </div>
-
-      <CommandDialog open={commandOpen} onOpenChange={setCommandOpen}>
-        <CommandInput placeholder="Search interviews, pages..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Pages">
-            {navItems.map((item) => (
-              <CommandItem
-                key={item.href}
-                onSelect={() => {
-                  setCommandOpen(false)
-                  window.location.href = item.href
-                }}
-              >
-                <item.icon />
-                {item.label}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
-      </CommandDialog>
     </div>
   )
 }

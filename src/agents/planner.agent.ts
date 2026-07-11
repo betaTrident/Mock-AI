@@ -43,7 +43,7 @@ Generate 5 questions worth of planning with balanced topics.`
         { name: 'PlannerOutput', description: 'Interview plan with strategy, topics, rubric' }
       )
       return PlannerOutputSchema.parse({ ...output, role: input.role })
-    })
+    }, { agentName: 'planner', attemptId: context.attemptId })
 
     await completeAgentRun(runId, {
       output: result,

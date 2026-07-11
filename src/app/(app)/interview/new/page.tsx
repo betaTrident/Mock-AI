@@ -4,18 +4,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
-import { InterviewSetupWizard } from "@/components/interview/InterviewSetupWizard"
-import { AppShell } from "@/components/shared/AppShell"
+import { InterviewSetupWizard, type InterviewSetupData } from "@/components/interview/InterviewSetupWizard"
 import { PageHeader } from "@/components/shared/PageHeader"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { PLACEHOLDER_USER } from "@/lib/placeholder-data"
-import type { InterviewSetupData } from "@/components/interview/InterviewSetupWizard"
 
 export default function NewInterviewPage() {
   const router = useRouter()
@@ -27,6 +17,7 @@ export default function NewInterviewPage() {
       const response = await fetch("/api/interviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(data),
       })
       if (!response.ok) throw new Error("Failed to create interview")
@@ -42,29 +33,18 @@ export default function NewInterviewPage() {
   }
 
   return (
-    <AppShell user={PLACEHOLDER_USER}>
-      <div className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
-        <PageHeader
-          title="New Interview"
-          description="Set up your mock interview in four quick steps."
-          breadcrumbs={[
-            { label: "Dashboard", href: "/dashboard" },
-            { label: "New Interview" },
-          ]}
-        />
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Create a new interview"
+        description="Set up your interview preferences and let AI craft a tailored experience."
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Interviews", href: "/interviews" },
+          { label: "New Interview" },
+        ]}
+      />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Interview setup</CardTitle>
-            <CardDescription>
-              All steps are validated before you can start the session.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <InterviewSetupWizard onSubmit={handleSubmit} isSubmitting={isSubmitting} />
-          </CardContent>
-        </Card>
-      </div>
-    </AppShell>
+      <InterviewSetupWizard onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+    </div>
   )
 }

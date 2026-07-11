@@ -79,7 +79,7 @@ export async function runQuestionAgent(
         })
       )
       return questions
-    })
+    }, { agentName: 'question', attemptId: context.attemptId })
 
     await completeAgentRun(runId, {
       output: { questions: result },

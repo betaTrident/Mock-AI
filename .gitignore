@@ -29,6 +29,10 @@ mock-ai-temp
 
 .vercel
 
+# Playwright
+playwright-report/
+test-results/
+
 # Environment variables
 .env
 .env.*

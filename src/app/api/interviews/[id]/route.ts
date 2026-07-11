@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+
 import { requireAuth } from '@/lib/auth'
 import { adminDb } from '@/lib/firebase-admin'
+import { withLoggedRoute } from '@/lib/route-handler'
 
-type RouteContext = { params: Promise<{ id: string }> }
-
-export async function GET(request: NextRequest, context: RouteContext) {
+export const GET = withLoggedRoute<{ id: string }>('get_interview', async (request, context) => {
   try {
     const user = await requireAuth(request)
     const { id } = await context.params
@@ -16,9 +16,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-}
+})
 
-export async function DELETE(request: NextRequest, context: RouteContext) {
+export const DELETE = withLoggedRoute<{ id: string }>('delete_interview', async (request, context) => {
   try {
     const user = await requireAuth(request)
     const { id } = await context.params
@@ -30,4 +30,4 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-}
+})

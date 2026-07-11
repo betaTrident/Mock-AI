@@ -25,6 +25,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error("ErrorBoundary caught:", error, info)
+    void import("@/lib/sentry").then(({ captureClientError }) => {
+      captureClientError(error, { componentStack: info.componentStack ?? undefined })
+    })
   }
 
   handleReset = () => {

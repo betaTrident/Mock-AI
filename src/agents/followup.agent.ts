@@ -49,7 +49,7 @@ Decide: FOLLOW_UP with one question, NEXT_QUESTION, or CLOSE_INTERVIEW.`
         { name: 'FollowUpDecision', description: 'Next interview action' }
       )
       return FollowUpDecisionSchema.parse(output)
-    })
+    }, { agentName: 'followup', attemptId: context.attemptId })
 
     await completeAgentRun(runId, {
       output: result,

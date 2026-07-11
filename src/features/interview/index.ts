@@ -1,3 +1,5 @@
 export { SpeechRecognitionService } from './speech-recognition'
 export { TextToSpeechService } from './text-to-speech'
 export { useInterviewSession } from './use-interview-session'
+export { syncTranscript, TRANSCRIPT_AUTO_SAVE_MS } from './recovery'
+export type { PendingTranscriptEvent } from './recovery'

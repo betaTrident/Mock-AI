@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run type-check
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: '{"type":"service_account","project_id":"ci-test"}'
+          GEMINI_API_KEY: ci-test-key
+          NEXT_PUBLIC_FIREBASE_API_KEY: ci-test
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ci-test.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ci-test
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ci-test.appspot.com
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '123'
+          NEXT_PUBLIC_FIREBASE_APP_ID: ci-test-app
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: '{"type":"service_account","project_id":"ci-test"}'
+          GEMINI_API_KEY: ci-test-key
+          NEXT_PUBLIC_FIREBASE_API_KEY: ci-test
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ci-test.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ci-test
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ci-test.appspot.com
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '123'
+          NEXT_PUBLIC_FIREBASE_APP_ID: ci-test-app
+      - run: npm run test:e2e
+        env:
+          CI: true
