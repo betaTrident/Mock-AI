@@ -7,14 +7,36 @@ vi.mock('@/lib/firebase-admin', () => ({
   adminAuth: {
     verifySessionCookie: vi.fn(),
   },
+  adminDb: {
+    collection: vi.fn(() => ({
+      doc: vi.fn(() => ({
+        get: vi.fn(async () => ({
+          exists: true,
+          data: () => ({ userId: 'owner-uid' }),
+        })),
+      })),
+    })),
+  },
+}))
+
+vi.mock('@/lib/audit', () => ({
+  getClientInfo: () => ({ ip: '127.0.0.1', userAgent: 'vitest' }),
+  writeAuditLog: vi.fn(),
 }))
 
 import { adminAuth } from '@/lib/firebase-admin'
+import { GET as getAttempt } from '@/app/api/attempts/[id]/route'
 
 function makeRequest(cookie?: string): NextRequest {
   const headers = new Headers()
   if (cookie) headers.set('cookie', `session=${cookie}`)
   return new NextRequest('http://localhost/api/interviews', { headers })
+}
+
+function authedGetAttempt(attemptId: string): NextRequest {
+  return new NextRequest(`http://localhost/api/attempts/${attemptId}`, {
+    headers: { cookie: 'session=valid' },
+  })
 }
 
 describe('API auth security', () => {
@@ -33,9 +55,16 @@ describe('API auth security', () => {
 })
 
 describe('cross-user access pattern', () => {
-  it('ownership mismatch should not expose resource existence (404 pattern)', () => {
-    const resourceUserId = 'owner-uid'
-    const requestingUserId = 'other-uid'
-    expect(resourceUserId).not.toBe(requestingUserId)
+  beforeEach(() => {
+    vi.mocked(adminAuth.verifySessionCookie).mockResolvedValue({ uid: 'other-uid' } as never)
+  })
+
+  it('returns 404 when requesting another user attempt (not 403)', async () => {
+    const res = await getAttempt(authedGetAttempt('attempt-1'), {
+      params: Promise.resolve({ id: 'attempt-1' }),
+    })
+    expect(res.status).toBe(404)
+    const body = (await res.json()) as { error: string }
+    expect(body.error).toBe('Not found')
   })
 })

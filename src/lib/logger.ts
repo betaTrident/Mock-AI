@@ -28,14 +28,20 @@ export function createLogger(context: LogContext = {}) {
 
 export type RouteLogHandle = {
   requestId: string
+  setUserId: (userId: string) => void
   complete: (extra?: { success?: boolean; error?: string }) => void
   fail: (error: unknown) => void
 }
 
 export function startRouteLog(action: string, userId?: string): RouteLogHandle {
   const requestId = crypto.randomUUID().slice(0, 12)
-  const log = createLogger({ requestId, userId, action })
+  let currentUserId = userId
+  let log = createLogger({ requestId, userId: currentUserId, action })
   const started = performance.now()
+
+  const refreshLog = () => {
+    log = createLogger({ requestId, userId: currentUserId, action })
+  }
 
   log.info({ msg: 'request_start' })
 
@@ -43,11 +49,21 @@ export function startRouteLog(action: string, userId?: string): RouteLogHandle {
 
   return {
     requestId,
+    setUserId: (uid: string) => {
+      currentUserId = uid
+      refreshLog()
+    },
     complete: (extra) => {
-      log.info({ durationMs: durationMs(), msg: 'request_complete', ...extra })
+      log.info({
+        userId: currentUserId,
+        durationMs: durationMs(),
+        msg: 'request_complete',
+        ...extra,
+      })
     },
     fail: (error) => {
       log.error({
+        userId: currentUserId,
         durationMs: durationMs(),
         msg: 'request_failed',
         error: error instanceof Error ? error.message : String(error),

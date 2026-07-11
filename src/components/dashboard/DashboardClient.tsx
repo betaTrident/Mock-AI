@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { DashboardKpiStrip } from "@/components/dashboard/DashboardKpiStrip"
+import { ProgressSection } from "@/components/dashboard/ProgressSection"
 import { DashboardOnboardingCta } from "@/components/dashboard/DashboardOnboardingCta"
 import { DashboardWelcomeHeader } from "@/components/dashboard/DashboardWelcomeHeader"
 import { RecentInterviewsTable } from "@/components/dashboard/RecentInterviewsTable"
@@ -60,6 +61,8 @@ export function DashboardClient({ data, userName }: DashboardClientProps) {
       <DashboardWelcomeHeader userName={userName} onStartInterview={openCreateDialog} />
 
       <DashboardKpiStrip metrics={data.metrics} insights={data.insights} />
+
+      <ProgressSection metrics={data.metrics} />
 
       <div className="grid gap-4 xl:grid-cols-2">
         {data.inProgressAttempt ? (

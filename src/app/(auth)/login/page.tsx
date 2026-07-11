@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { MailIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -25,19 +25,17 @@ const REMEMBER_EMAIL_KEY = 'mockai.rememberedEmail'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(() => {
+    if (typeof window === 'undefined') return ''
+    return localStorage.getItem(REMEMBER_EMAIL_KEY) ?? ''
+  })
   const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMe] = useState(false)
+  const [rememberMe, setRememberMe] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return Boolean(localStorage.getItem(REMEMBER_EMAIL_KEY))
+  })
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-
-  useEffect(() => {
-    const remembered = localStorage.getItem(REMEMBER_EMAIL_KEY)
-    if (remembered) {
-      setEmail(remembered)
-      setRememberMe(true)
-    }
-  }, [])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()

@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { adminAuth } from '@/lib/firebase-admin'
+import { getActiveRouteLog } from '@/lib/route-handler'
 import type { DecodedIdToken } from 'firebase-admin/auth'
 
 export { SESSION_COOKIE_NAME, SESSION_MAX_AGE_MS } from '@/lib/auth-constants'
@@ -14,7 +15,9 @@ export async function requireAuth(request: NextRequest): Promise<DecodedIdToken>
   const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value
   if (!sessionCookie) throw new UnauthorizedError()
   try {
-    return await adminAuth.verifySessionCookie(sessionCookie, true)
+    const decoded = await adminAuth.verifySessionCookie(sessionCookie, true)
+    getActiveRouteLog()?.setUserId(decoded.uid)
+    return decoded
   } catch {
     throw new UnauthorizedError()
   }

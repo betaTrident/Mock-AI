@@ -62,7 +62,10 @@ All POST routes validate with Zod `safeParse` before Firestore or agent calls:
 | `POST /api/interviews` | `createInterviewSchema` |
 | `POST /api/attempts` | `createAttemptSchema` |
 | `POST /api/attempts/[id]/agent-step` | `agentStepSchema` |
+| `POST /api/attempts/[id]/sync-transcript` | `syncTranscriptSchema` |
 | `POST /api/auth/session` | `sessionTokenSchema` |
+
+GET routes and body-less POST routes (`complete`, `share`) do not accept request bodies and skip body validation.
 
 Validation failures return HTTP 400 with flattened Zod errors.
 
@@ -106,12 +109,22 @@ Violations return HTTP 400 at the API route (not 422) to avoid leaking guard log
 | Action | Trigger |
 |--------|---------|
 | `create_interview` | `POST /api/interviews` |
+| `list_interviews` | `GET /api/interviews` |
+| `get_interview` | `GET /api/interviews/[id]` |
+| `delete_interview` | `DELETE /api/interviews/[id]` |
 | `start_attempt` | `POST /api/attempts` |
+| `list_attempts` | `GET /api/attempts` |
+| `get_attempt` | `GET /api/attempts/[id]` |
 | `agent_step` | `POST /api/attempts/[id]/agent-step` |
 | `complete_attempt` | `POST /api/attempts/[id]/complete` |
+| `sync_transcript` | `POST /api/attempts/[id]/sync-transcript` |
 | `get_feedback` | `GET /api/attempts/[id]/feedback` |
+| `export_feedback_pdf` | `GET /api/attempts/[id]/feedback/pdf` |
+| `share_feedback` | `POST /api/attempts/[id]/feedback/share` |
 | `auth_session` | `POST /api/auth/session` |
 | `auth_sign_out` | `DELETE /api/auth/session` |
+
+Public feedback (`GET /api/feedback/[slug]`) is intentionally unauthenticated and not audit-logged to avoid storing anonymous viewer IPs at scale.
 
 Each entry includes: `userId`, `action`, `resourceId`, `ip`, `userAgent`, `success`, `timestamp`.
 

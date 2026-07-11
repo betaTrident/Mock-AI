@@ -31,6 +31,14 @@ export const GET = withLoggedRoute('list_attempts', async (request) => {
       }
     })
 
+    await writeAuditLog({
+      userId: user.uid,
+      action: 'list_attempts',
+      resourceId: 'list',
+      ip,
+      userAgent,
+      success: true,
+    })
     return NextResponse.json({ attempts })
   } catch {
     await writeAuditLog({

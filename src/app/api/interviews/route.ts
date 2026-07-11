@@ -19,11 +19,20 @@ export const GET = withLoggedRoute('list_interviews', async (request) => {
       .get()
 
     const interviews = snapshot.docs.map((doc) => doc.data())
+
+    await writeAuditLog({
+      userId: user.uid,
+      action: 'list_interviews',
+      resourceId: 'list',
+      ip,
+      userAgent,
+      success: true,
+    })
     return NextResponse.json({ interviews })
   } catch {
     await writeAuditLog({
       userId: 'anonymous',
-      action: 'create_interview',
+      action: 'list_interviews',
       resourceId: 'list',
       ip,
       userAgent,

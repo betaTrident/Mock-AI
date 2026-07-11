@@ -127,7 +127,7 @@ export function InterviewWorkspace({
               <span>Session progress</span>
               <span>{data.progressPercent}%</span>
             </div>
-            <Progress value={data.progressPercent} />
+            <Progress value={data.progressPercent} aria-label={`Session progress ${data.progressPercent} percent`} />
           </div>
         </div>
 
@@ -137,10 +137,15 @@ export function InterviewWorkspace({
       </div>
 
       <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3">
-        <div className="flex items-center gap-4">
-          <span className="font-mono text-sm tabular-nums">{formatTime(data.elapsedSeconds)}</span>
+        <p className="sr-only" id="interview-shortcuts">
+          Keyboard shortcuts: M toggles mute, C toggles camera.
+        </p>
+        <div className="flex items-center gap-4" aria-describedby="interview-shortcuts">
+          <span className="font-mono text-sm tabular-nums" aria-label={`Elapsed time ${formatTime(data.elapsedSeconds)}`}>
+            {formatTime(data.elapsedSeconds)}
+          </span>
           <AgentStatusIndicator activeAgent={data.activeAgent} />
-          {isMuted ? <span className="text-xs text-muted-foreground">Muted (M)</span> : null}
+          {isMuted ? <span className="text-xs text-muted-foreground" aria-live="polite">Muted (M)</span> : null}
         </div>
 
         <div className="flex items-center gap-2">

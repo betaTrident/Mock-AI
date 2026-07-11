@@ -1,6 +1,7 @@
 import { FieldValue } from 'firebase-admin/firestore'
 import { NextRequest, NextResponse } from 'next/server'
 
+import { guardInput } from '@/agents/safety.guard'
 import { getClientInfo, writeAuditLog } from '@/lib/audit'
 import { requireAuth } from '@/lib/auth'
 import { adminDb } from '@/lib/firebase-admin'
@@ -27,6 +28,22 @@ export const POST = withLoggedRoute<{ id: string }>('sync_transcript', async (re
     const parsed = syncTranscriptSchema.safeParse(body)
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+    }
+
+    for (const event of parsed.data.events) {
+      const guard = await guardInput(event.content)
+      if (!guard.safe) {
+        await writeAuditLog({
+          userId: user.uid,
+          action: 'sync_transcript',
+          resourceId: id,
+          ip,
+          userAgent,
+          success: false,
+          errorCode: 'GUARD_VIOLATION',
+        })
+        return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
+      }
     }
 
     const existingIds = new Set(
